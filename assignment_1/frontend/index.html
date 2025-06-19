@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SuperShop Product Management</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+
+        h1 {
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #004d80;
+        }
+
+        h2 {
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            color: #004d80;
+        }
+
+        #navbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #007bff;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            border-radius: 5px 5px 0 0;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background-color: #e6f0ff;
+        }
+
+        .nav-btn.active,
+        .nav-btn:focus {
+            border-bottom-color: #007bff;
+            background-color: #d0e4ff;
+            outline: none;
+            color: #004d80;
+        }
+
+        section {
+            background: #fff;
+            padding: 25px 30px;
+            margin-bottom: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: inline-block;
+            width: 140px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #004d80;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 280px;
+            padding: 10px 12px;
+            margin-bottom: 15px;
+            border: 1.5px solid #cbd6e2;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+            outline: none;
+        }
+
+        textarea {
+            height: 100px;
+            font-family: 'Courier New', Courier, monospace;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 22px;
+            margin-top: 15px;
+            cursor: pointer;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            min-width: 120px;
+            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.6);
+        }
+
+        button:focus {
+            outline: 3px solid #80bdff;
+            outline-offset: 2px;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e8f0;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        tr:hover:not(.editing) {
+            background-color: #f1f7ff;
+        }
+
+        tr.editing {
+            background-color: #fff3cd;
+        }
+
+        table input[type="text"],
+        table input[type="number"],
+        table input[type="date"],
+        table select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            font-size: 15px;
+            border: 1.5px solid #007bff;
+            border-radius: 8px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        table input[type="text"]:focus,
+        table input[type="number"]:focus,
+        table input[type="date"]:focus,
+        table select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 8px rgba(0, 86, 179, 0.5);
+            outline: none;
+        }
+
+        tr.editing .edit-btn {
+            background-color: #28a745;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.5);
+        }
+
+        tr.editing .edit-btn:hover {
+            background-color: #218838;
+            box-shadow: 0 4px 12px rgba(33, 136, 56, 0.7);
+        }
+
+        .small-input {
+            width: 200px;
+        }
+
+        .inline-input {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: 600;
+            color: #004d80;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>SuperShop Product Management-Spring Legacy configuration (XML-based)</h1>
+
+    <nav id="navbar" style="margin-bottom: 20px;">
+        <button class="nav-btn" id="refresh-products-btn" data-target="all-products-section">All Products</button>
+        <button class="nav-btn" data-target="add-product-section">Add Product</button>
+        <button class="nav-btn" data-target="bulk-add-section">Bulk Add Product</button>
+        <button class="nav-btn" id="expiring-soon-btn" data-target="expiring-soon-section">Expiring Soon
+            Products</button>
+        <button class="nav-btn" data-target="discounted-products-section">Discounted Expiring Products</button>
+        <button class="nav-btn" id="total-by-category-btn" data-target="total-by-category-section">Total Price by
+            Category</button>
+        <button class="nav-btn" data-target="category-discount-section">Products by Category with Discount</button>
+    </nav>
+
+    <section id="all-products-section">
+        <h2>All Products</h2>
+        <div id="all-products-container"></div>
+    </section>
+
+    <section id="add-product-section" style="display:none;">
+        <h2>Add Product</h2>
+        <form id="add-product-form">
+            <label for="add-id">ID:</label>
+            <input type="number" id="add-id" name="id" required /><br />
+            <label for="add-name">Name:</label>
+            <input type="text" id="add-name" name="name" required /><br />
+            <label for="add-price">Price:</label>
+            <input type="number" id="add-price" name="price" step="0.01" required /><br />
+            <label for="add-quantity">Quantity:</label>
+            <input type="number" id="add-quantity" name="quantity" required /><br />
+            <label for="add-category">Category:</label>
+            <select id="add-category" name="category" required>
+                <option value="">Select Category</option>
+                <option value="BEAUTY_CARE">Beauty Care</option>
+                <option value="VEGETABLES">Vegetables</option>
+                <option value="MEAT">Meat</option>
+                <option value="GROCERIES">Groceries</option>
+            </select><br />
+            <label for="add-expireDate">Expire Date:</label>
+            <input type="date" id="add-expireDate" name="expireDate" required /><br />
+            <button type="submit">Add Product</button>
+        </form>
+        <div id="add-product-message" class="message"></div>
+    </section>
+
+    <section id="bulk-add-section" style="display:none;">
+        <h2>Bulk Add Products (JSON Array)</h2>
+        <textarea id="bulk-products-json"
+            placeholder='[{"name":"Product1","price":10.5,"quantity":5,"category":"MEAT","expireDate":"2024-12-31"}, ...]'></textarea><br />
+        <button id="bulk-add-btn">Add Products in Bulk</button>
+        <div id="bulk-add-message" class="message"></div>
+    </section>
+
+    <section id="expiring-soon-section" style="display:none;">
+        <h2>Expiring Soon Products</h2>
+        <div id="expiring-soon-container"></div>
+    </section>
+
+    <section id="discounted-products-section" style="display:none;">
+        <h2>Discounted Expiring Products</h2>
+        <label for="discount-input" class="inline-input">Discount:</label>
+        <input type="number" id="discount-input" class="small-input" step="0.01" min="0" />
+        <button id="discounted-products-btn">Show Discounted Expiring Products</button>
+        <div id="discounted-products-container"></div>
+    </section>
+
+    <section id="total-by-category-section" style="display:none;">
+        <h2>Total Price by Category</h2>
+        <div id="total-by-category-container"></div>
+    </section>
+
+    <section id="category-discount-section" style="display:none;">
+        <h2>Products by Category with Discount</h2>
+        <label for="category-filter" class="inline-input">Category:</label>
+        <select id="category-filter" class="small-input">
+            <option value="">Select Category</option>
+            <option value="BEAUTY_CARE">Beauty Care</option>
+            <option value="VEGETABLES">Vegetables</option>
+            <option value="MEAT">Meat</option>
+            <option value="GROCERIES">Groceries</option>
+        </select>
+        <button id="category-discount-btn">Show Products by Category with Discount</button>
+        <div id="category-discount-container"></div>
+    </section>
+
+    <script>
+        const apiBase = 'http://localhost:8080/api/products';
+
+        function createTableFromProducts(products) {
+            if (!products || products.length === 0) {
+                return '<p>No products found.</p>';
+            }
+            let html = '<table><thead><tr>' +
+                '<th>ID</th><th>Name</th><th>Price</th><th>Quantity</th><th>Category</th><th>Expire Date</th><th>Discounted Price</th><th>Availability</th><th>Action</th>' +
+                '</tr></thead><tbody>';
+            products.forEach(p => {
+                html += '<tr data-id="' + p.id + '">' +
+                    `<td>${p.id}</td>` +
+                    `<td class="editable" data-field="name">${p.name}</td>` +
+                    `<td class="editable" data-field="price">${p.price.toFixed(2)}</td>` +
+                    `<td class="editable" data-field="quantity">${p.quantity}</td>` +
+                    `<td class="editable" data-field="category">${p.category}</td>` +
+                    `<td class="editable" data-field="expireDate">${p.expireDate || ''}</td>` +
+                    `<td>${p.discountedPrice !== null && p.discountedPrice !== undefined ? p.discountedPrice.toFixed(2) : ''}</td>` +
+                    `<td>${p.availability ? 'Yes' : 'No'}</td>` +
+                    `<td><button class="edit-btn">Edit</button></td>` +
+                    '</tr>';
+            });
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function createTableFromCategoryTotals(totals) {
+            if (!totals || totals.length === 0) {
+                return '<p>No data found.</p>';
+            }
+            let html = '<table><thead><tr><th>Category</th><th>Total Price</th></tr></thead><tbody>';
+            totals.forEach(t => {
+                html += `<tr><td>${t.category}</td><td>${t.totalPrice.toFixed(2)}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            return html;
+        }
+
+        async function fetchAllProducts() {
+            const res = await fetch(`${apiBase}/all`);
+            const products = await res.json();
+            document.getElementById('all-products-container').innerHTML = createTableFromProducts(products);
+        }
+
+        document.getElementById('refresh-products-btn').addEventListener('click', fetchAllProducts);
+
+        document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const product = {
+                id: e.target.id.value,
+                name: e.target.name.value,
+                price: parseFloat(e.target.price.value),
+                quantity: parseInt(e.target.quantity.value),
+                category: e.target.category.value,
+                expireDate: e.target.expireDate.value
+            };
+            try {
+                const res = await fetch(`${apiBase}/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
+                if (res.ok) {
+                    alert('Product added successfully.');
+                    e.target.reset();
+                    fetchAllProducts();
+                } else {
+                    alert('Failed to add product.');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+
+        document.getElementById('bulk-add-btn').addEventListener('click', async () => {
+            const jsonText = document.getElementById('bulk-products-json').value;
+            try {
+                const products = JSON.parse(jsonText);
+                const res = await fetch(`${apiBase}/bulk`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(products)
+                });
+                if (res.ok) {
+                    alert('Bulk products added successfully.');
+                    document.getElementById('bulk-products-json').value = '';
+                    fetchAllProducts();
+                } else {
+                    alert('Failed to add bulk products.');
+                }
+            } catch (err) {
+                alert('Invalid JSON: ' + err.message);
+            }
+        });
+
+        document.getElementById('expiring-soon-btn').addEventListener('click', async () => {
+            const res = await fetch(`${apiBase}/expiring-soon`);
+            const products = await res.json();
+            document.getElementById('expiring-soon-container').innerHTML = createTableFromProducts(products);
+        });
+
+        document.getElementById('discounted-products-btn').addEventListener('click', async () => {
+            const discount = parseFloat(document.getElementById('discount-input').value);
+            if (isNaN(discount)) {
+                alert('Please enter a valid discount value.');
+                return;
+            }
+            const res = await fetch(apiBase + '/discounted?discount=' + discount);
+            const products = await res.json();
+            document.getElementById('discounted-products-container').innerHTML = createTableFromProducts(products);
+        });
+
+        document.getElementById('total-by-category-btn').addEventListener('click', async () => {
+            const res = await fetch(`${apiBase}/total-by-category`);
+            const totals = await res.json();
+            document.getElementById('total-by-category-container').innerHTML = createTableFromCategoryTotals(totals);
+        });
+
+        document.getElementById('category-discount-btn').addEventListener('click', async () => {
+            const category = document.getElementById('category-filter').value;
+            if (!category) {
+                alert('Please select a category.');
+                return;
+            }
+            const res = await fetch(`${apiBase}/by-category-with-discounts?category=${category}`);
+            const products = await res.json();
+            document.getElementById('category-discount-container').innerHTML = createTableFromProducts(products);
+        });
+
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('edit-btn')) {
+                const row = e.target.closest('tr');
+                const id = parseInt(row.dataset.id);
+                const isEditing = row.classList.contains('editing');
+
+                if (!isEditing) {
+                    row.querySelectorAll('.editable').forEach(cell => {
+                        const field = cell.dataset.field;
+                        let value = cell.textContent;
+                        if (field === 'category') {
+                            cell.innerHTML = `
+                            <select>
+                                <option value="BEAUTY_CARE" ${value === "BEAUTY_CARE" ? "selected" : ""}>Beauty Care</option>
+                                <option value="VEGETABLES" ${value === "VEGETABLES" ? "selected" : ""}>Vegetables</option>
+                                <option value="MEAT" ${value === "MEAT" ? "selected" : ""}>Meat</option>
+                                <option value="GROCERIES" ${value === "GROCERIES" ? "selected" : ""}>Groceries</option>
+                            </select>`;
+                        } else {
+                            const type = (field === 'price' || field === 'quantity') ? 'number' : (field === 'expireDate' ? 'date' : 'text');
+                            cell.innerHTML = `<input type="${type}" value="${value}" />`;
+                        }
+                    });
+                    e.target.textContent = 'Save';
+                    row.classList.add('editing');
+                } else {
+                    const updatedProduct = { id };
+                    row.querySelectorAll('.editable').forEach(cell => {
+                        const field = cell.dataset.field;
+                        const input = cell.querySelector('input, select');
+                        updatedProduct[field] = field === 'price' || field === 'quantity'
+                            ? parseFloat(input.value)
+                            : input.value;
+                    });
+
+                    try {
+                        const res = await fetch(`${apiBase}/update`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updatedProduct)
+                        });
+
+                        if (res.ok) {
+                            const categoryDiscountSection = document.getElementById('category-discount-section');
+                            if (categoryDiscountSection.style.display === 'block') {
+                                const category = document.getElementById('category-filter').value;
+                                if (category) {
+                                    const res2 = await fetch(`${apiBase}/by-category-with-discounts?category=${category}`);
+                                    const products = await res2.json();
+                                    document.getElementById('category-discount-container').innerHTML = createTableFromProducts(products);
+                                }
+                            } else {
+                                await fetchAllProducts();
+                            }
+                        } else {
+                            alert('Failed to update product.');
+                        }
+                    } catch (err) {
+                        alert('Error: ' + err.message);
+                    }
+                }
+            }
+        });
+
+        fetchAllProducts();
+
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const sections = [
+            'all-products-section',
+            'add-product-section',
+            'bulk-add-section',
+            'expiring-soon-section',
+            'discounted-products-section',
+            'total-by-category-section',
+            'category-discount-section'
+        ];
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                sections.forEach(sectionId => {
+                    document.getElementById(sectionId).style.display = (sectionId === target) ? 'block' : 'none';
+                });
+
+                navButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (target === 'all-products-section') {
+                    fetchAllProducts();
+                } else if (target === 'expiring-soon-section') {
+                    fetch(`${apiBase}/expiring-soon`)
+                        .then(res => res.json())
+                        .then(products => {
+                            document.getElementById('expiring-soon-container').innerHTML = createTableFromProducts(products);
+                        });
+                } else if (target === 'discounted-products-section') {
+                    document.getElementById('discount-input').value = '';
+                    document.getElementById('discounted-products-container').innerHTML = '';
+                } else if (target === 'total-by-category-section') {
+                    fetch(`${apiBase}/total-by-category`)
+                        .then(res => res.json())
+                        .then(totals => {
+                            document.getElementById('total-by-category-container').innerHTML = createTableFromCategoryTotals(totals);
+                        });
+                } else if (target === 'category-discount-section') {
+                    document.getElementById('category-filter').value = '';
+                    document.getElementById('category-discount-container').innerHTML = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
