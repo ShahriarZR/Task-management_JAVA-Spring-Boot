@@ -1,9 +1,7 @@
 package com.example.Project.entity;
 
-import com.example.Project.entity.Employee;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "task")
@@ -42,8 +40,8 @@ public class Task {
     private LocalDateTime dueDate;
 
     @ManyToOne
-    @JoinColumn(name = "assignee_id", nullable = true)
-    private Employee assignee;
+    @JoinColumn(name = "assignedUser", nullable = true)
+    private User assignee;
 
     @Column(length = 255, nullable = true)
     private String attachment;
@@ -114,11 +112,11 @@ public class Task {
         this.dueDate = dueDate;
     }
 
-    public Employee getAssignee() {
+    public User getAssignee() {
         return assignee;
     }
 
-    public void setAssignee(Employee assignee) {
+    public void setAssignee(User assignee) {
         this.assignee = assignee;
     }
 
