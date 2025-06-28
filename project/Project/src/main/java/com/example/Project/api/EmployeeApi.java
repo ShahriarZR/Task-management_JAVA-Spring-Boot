@@ -25,6 +25,7 @@ public class EmployeeApi {
     @PostMapping("/registration")
     public ResponseEntity<String> registerEmployee(@RequestBody Employee employee) {
         String response = employeeService.saveEmployee(employee);
+        
         return ResponseEntity.ok(response);
     }
 
