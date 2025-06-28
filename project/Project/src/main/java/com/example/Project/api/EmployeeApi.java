@@ -32,11 +32,11 @@ public class EmployeeApi {
     public ResponseEntity<String> login(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
-        try {
-            Employee employee = employeeService.login(email, password);
-            return ResponseEntity.ok("Login successful for user: " + employee.getName());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+        Map<String, String> response = employeeService.login(email, password);
+        if (response.containsKey("error")) {
+            return ResponseEntity.status(401).body(response.get("error"));
+        } else {
+            return ResponseEntity.ok(response.get("message"));
         }
     }
 

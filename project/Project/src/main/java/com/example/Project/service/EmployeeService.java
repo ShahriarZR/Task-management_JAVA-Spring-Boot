@@ -2,11 +2,14 @@ package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
 import com.example.Project.repository.EmployeeRepository;
+
 import com.example.Project.service.MailerService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EmployeeService {
@@ -55,16 +58,23 @@ public class EmployeeService {
         }
     }
 
-    public Employee login(String email, String password) {
+    public Map<String, String> login(String email, String password) {
         Employee employee = employeeRepository.findByEmail(email);
+        Map<String, String> response = new HashMap<>();
         if (employee == null) {
-            throw new RuntimeException("User not found");
+            response.put("error", "Invalid Username");
+            return response;
         }
-        if (passwordEncoder.matches(password, employee.getPassword())) {
-            return employee;
-        } else {
-            throw new RuntimeException("Invalid password");
+        if (!passwordEncoder.matches(password, employee.getPassword())) {
+            response.put("error", "Wrong Password");
+            return response;
         }
+        if (!employee.isEmailVerified()) {
+            response.put("error", "Please verify your email before logging in");
+            return response;
+        }
+        response.put("message", employee.getName() + " logged in successfully");
+        return response;
     }
 
     public String verifyEmail(String email, String otp) {
