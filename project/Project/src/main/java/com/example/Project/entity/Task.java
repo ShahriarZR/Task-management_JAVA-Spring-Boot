@@ -1,6 +1,7 @@
 package com.example.Project.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,11 +40,12 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime dueDate;
 
+    // Replace userId with an Employee entity reference
     @ManyToOne
-    @JoinColumn(name = "assignedUser", nullable = true)
-    private User assignee;
+    @JoinColumn(name = "employee_id", nullable = true)
+    private Employee employee;
 
-    @Column(length = 255, nullable = true)
+    @Column(length = 255)
     private String attachment;
 
     // Getters and Setters
@@ -112,12 +114,12 @@ public class Task {
         this.dueDate = dueDate;
     }
 
-    public User getAssignee() {
-        return assignee;
+    public Employee getEmployee() {
+        return employee;
     }
 
-    public void setAssignee(User assignee) {
-        this.assignee = assignee;
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
     public String getAttachment() {

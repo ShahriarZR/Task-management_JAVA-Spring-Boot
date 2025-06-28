@@ -2,6 +2,7 @@ package com.example.Project.entity;
 
 import com.example.Project.enums.Priority;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,21 +13,23 @@ public class EmployeeTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    // Many tasks can be assigned to one task entity
+    @ManyToOne
     @JoinColumn(name = "assignedTaskId", nullable = false)
     private Task assignedTask;
 
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
+    // Many employee tasks can belong to one employee
+    @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = true)
+    @Column
     private LocalDateTime assignedAt;
 
-    @Column(nullable = true)
+    @Column
     private LocalDateTime completedAt;
 
     @Enumerated(EnumType.STRING)
@@ -51,12 +54,12 @@ public class EmployeeTask {
         this.assignedTask = assignedTask;
     }
 
-    public User getUser() {
-        return user;
+    public Employee getEmployee() {
+        return employee;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
     public LocalDateTime getCreatedAt() {
