@@ -31,7 +31,7 @@ public class Employee {
     @Column(length = 100, nullable = false)
     private String password;
 
-    /*@Column(length = 6, nullable = true)
+    @Column(length = 6, nullable = true)
     private String otp;
 
     @Column(nullable = true)
@@ -44,7 +44,7 @@ public class Employee {
     private boolean isEmailVerified = false;
 
     @Column(nullable = false)
-    private boolean isOtpVerified = false;*/
+    private boolean isOtpVerified = false;
 
     // Getters and Setters
 
@@ -104,7 +104,7 @@ public class Employee {
         this.password = password;
     }
 
-    /*public String getOtp() {
+    public String getOtp() {
         return otp;
     }
 
@@ -142,5 +142,5 @@ public class Employee {
 
     public void setOtpVerified(boolean otpVerified) {
         isOtpVerified = otpVerified;
-    }*/
+    }
 }

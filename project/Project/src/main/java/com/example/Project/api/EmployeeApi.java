@@ -39,4 +39,12 @@ public class EmployeeApi {
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        String response = employeeService.verifyEmail(email, otp);
+        return ResponseEntity.ok(response);
+    }
 }
