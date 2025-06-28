@@ -2,11 +2,8 @@ package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
 import com.example.Project.repository.EmployeeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 public class EmployeeService {
@@ -20,14 +17,26 @@ public class EmployeeService {
     }
 
     public String saveEmployee(Employee employee) {
-        if (employeeRepository.findByEmail(employee.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
+        // Encode the password before saving
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        int rows = employeeRepository.saveEmployee(employee);
+        if (rows > 0) {
+            return "Employee registered successfully";
+        } else {
+            return "Failed to register employee";
         }
-        String hashedPassword = passwordEncoder.encode(employee.getPassword());
+    }
 
-        employeeRepository.save(employee);
-
-        return "Account created successfully";
+    public Employee login(String email, String password) {
+        Employee employee = employeeRepository.findByEmail(email);
+        if (employee == null) {
+            throw new RuntimeException("User not found");
+        }
+        if (passwordEncoder.matches(password, employee.getPassword())) {
+            return employee;
+        } else {
+            throw new RuntimeException("Invalid password");
+        }
     }
 }
 
