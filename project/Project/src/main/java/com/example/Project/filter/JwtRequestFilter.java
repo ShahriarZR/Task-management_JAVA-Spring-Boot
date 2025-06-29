@@ -35,8 +35,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtUtil.getAllClaimsFromToken(jwt);
                 if (claims != null && !jwtUtil.isTokenExpired(jwt)) {
+                    java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+                    Object roleClaim = claims.get("role");
+                    if (roleClaim != null) {
+                        authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + roleClaim.toString()));
+                    }
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            claims.get("email"), null, new ArrayList<>());
+                            claims.get("email"), null, authorities);
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }

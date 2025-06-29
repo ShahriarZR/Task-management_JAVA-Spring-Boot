@@ -1,6 +1,7 @@
 package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.enums.Role;
 import com.example.Project.repository.EmployeeRepository;
 
 import com.example.Project.util.JwtUtil;
@@ -46,6 +47,7 @@ public class EmployeeService {
         employee.setOtpExpiry(expiry);
         employee.setEmailVerified(false);
         employee.setOtpVerified(false);
+        employee.setRole(Role.ADMIN);
 
         // Encode the password before saving
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
@@ -74,7 +76,7 @@ public class EmployeeService {
             response.put("error", "Please verify your email before logging in");
             return response;
         }
-        String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail());
+        String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail(), employee.getRole().name());
         response.put("access_token", token);
         return response;
     }

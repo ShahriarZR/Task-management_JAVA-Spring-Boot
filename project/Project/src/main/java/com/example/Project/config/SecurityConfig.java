@@ -25,14 +25,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable() // Disable CSRF for simplicity, adjust as needed
-            .authorizeHttpRequests()
-                .requestMatchers("/api/auth/login", "/api/employee/registration", "/api/employee/verify-email").permitAll() // Allow unauthenticated access to login, registration, verify-email
-                .anyRequest().authenticated() // Require authentication for other requests
-            .and()
-            .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless session; no session will be created or used by Spring Security
-            .and()
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity, adjust as needed
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/login", "/api/employee/registration", "/api/employee/verify-email").permitAll() 
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") 
+                .anyRequest().authenticated()) 
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Use stateless session; no session will be created or used by Spring Security
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

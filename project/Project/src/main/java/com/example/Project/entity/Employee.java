@@ -1,6 +1,7 @@
 package com.example.Project.entity;
 
 import com.example.Project.enums.JobTitle;
+import com.example.Project.enums.Role;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -30,6 +31,11 @@ public class Employee {
 
     @Column(length = 100, nullable = false)
     private String password;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private Role role = Role.USER; // Set default value in Java instead of DB level
 
     @Column(length = 6, nullable = true)
     private String otp;
@@ -102,6 +108,14 @@ public class Employee {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public String getOtp() {

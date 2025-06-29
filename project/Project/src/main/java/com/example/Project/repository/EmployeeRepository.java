@@ -22,13 +22,14 @@ public class EmployeeRepository {
     }
 
     public int saveEmployee(Employee employee) {
-        String sql = "INSERT INTO employee (name, email, job_title, phone, address, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO employee (name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         return jdbcTemplate.update(sql,
                 employee.getName(),
                 employee.getEmail(),
                 employee.getJobTitle() != null ? employee.getJobTitle().name() : null,
                 employee.getPhone(),
                 employee.getAddress(),
+                employee.getRole() != null ? employee.getRole().name() : null,
                 employee.getPassword(),
                 employee.getOtp(),
                 employee.getLastOtpResend(),
@@ -56,26 +57,30 @@ public class EmployeeRepository {
                 employee.getEmail());
     }
 
-private static class EmployeeRowMapper implements RowMapper<Employee> {
-    @Override
-    public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Employee employee = new Employee();
-        employee.setId(rs.getLong("id"));
-        employee.setName(rs.getString("name"));
-        employee.setEmail(rs.getString("email"));
-        String jobTitleStr = rs.getString("job_title");
-        if (jobTitleStr != null) {
-            employee.setJobTitle(JobTitle.valueOf(jobTitleStr));
+    private static class EmployeeRowMapper implements RowMapper<Employee> {
+        @Override
+        public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Employee employee = new Employee();
+            employee.setId(rs.getLong("id"));
+            employee.setName(rs.getString("name"));
+            employee.setEmail(rs.getString("email"));
+            String jobTitleStr = rs.getString("job_title");
+            if (jobTitleStr != null) {
+                employee.setJobTitle(JobTitle.valueOf(jobTitleStr));
+            }
+            employee.setPhone(rs.getString("phone"));
+            employee.setAddress(rs.getString("address"));
+            employee.setPassword(rs.getString("password"));
+            employee.setOtp(rs.getString("otp"));
+            employee.setOtpExpiry(rs.getTimestamp("otp_expiry") != null ? rs.getTimestamp("otp_expiry").toLocalDateTime() : null);
+            employee.setLastOtpResend(rs.getTimestamp("last_otp_resend") != null ? rs.getTimestamp("last_otp_resend").toLocalDateTime() : null);
+            employee.setEmailVerified(rs.getBoolean("is_email_verified"));
+            employee.setOtpVerified(rs.getBoolean("is_otp_verified"));
+            String roleStr = rs.getString("role");
+            if (roleStr != null) {
+                employee.setRole(com.example.Project.enums.Role.valueOf(roleStr));
+            }
+            return employee;
         }
-        employee.setPhone(rs.getString("phone"));
-        employee.setAddress(rs.getString("address"));
-        employee.setPassword(rs.getString("password"));
-        employee.setOtp(rs.getString("otp"));
-        employee.setOtpExpiry(rs.getTimestamp("otp_expiry") != null ? rs.getTimestamp("otp_expiry").toLocalDateTime() : null);
-        employee.setLastOtpResend(rs.getTimestamp("last_otp_resend") != null ? rs.getTimestamp("last_otp_resend").toLocalDateTime() : null);
-        employee.setEmailVerified(rs.getBoolean("is_email_verified"));
-        employee.setOtpVerified(rs.getBoolean("is_otp_verified"));
-        return employee;
     }
-}
 }

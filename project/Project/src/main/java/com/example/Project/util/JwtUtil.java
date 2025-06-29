@@ -17,11 +17,12 @@ public class JwtUtil {
 
     private final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
 
-    public String generateToken(Long id, String name, String email) {
+    public String generateToken(Long id, String name, String email, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);
         claims.put("name", name);
         claims.put("email", email);
+        claims.put("role", role);
         return doGenerateToken(claims);
     }
 
