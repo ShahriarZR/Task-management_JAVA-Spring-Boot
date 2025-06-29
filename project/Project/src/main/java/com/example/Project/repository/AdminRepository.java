@@ -38,6 +38,12 @@ public class AdminRepository {
         return jdbcTemplate.update(sql, employeeId, taskId);
     }
 
+    public boolean isTaskAssignedToEmployee(Long employeeId, Long taskId) {
+        String sql = "SELECT COUNT(*) FROM task WHERE id = ? AND employee_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, taskId, employeeId);
+        return count != null && count > 0;
+    }
+
     public int saveTask(Task task) {
         if (taskExists(task.getTitle(), task.getDueDate())) {
             return 0; // Task already exists
@@ -53,5 +59,43 @@ public class AdminRepository {
                 task.getDueDate(),
                 task.getEmployee() != null ? task.getEmployee().getId() : null,
                 task.getAttachment());
+    }
+
+    public Task getTaskById(Long taskId) {
+        String sql = "SELECT id, title, description, project_type, status, created_at, updated_at, due_date, employee_id, attachment FROM task WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{taskId}, (rs, rowNum) -> {
+            Task task = new Task();
+            task.setId(rs.getLong("id"));
+            task.setTitle(rs.getString("title"));
+            task.setDescription(rs.getString("description"));
+            task.setProjectType(rs.getString("project_type"));
+            task.setStatus(Task.Status.valueOf(rs.getString("status")));
+            task.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            task.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+            task.setDueDate(rs.getTimestamp("due_date") != null ? rs.getTimestamp("due_date").toLocalDateTime() : null);
+            Long employeeId = rs.getLong("employee_id");
+            if (employeeId != null && employeeId != 0) {
+                // Assuming Employee object can be set with just id for now
+                com.example.Project.entity.Employee employee = new com.example.Project.entity.Employee();
+                employee.setId(employeeId);
+                task.setEmployee(employee);
+            }
+            task.setAttachment(rs.getString("attachment"));
+            return task;
+        });
+    }
+
+    public int updateTask(Task task) {
+        String sql = "UPDATE task SET title = ?, description = ?, project_type = ?, status = ?, updated_at = ?, due_date = ?, employee_id = ?, attachment = ? WHERE id = ?";
+        return jdbcTemplate.update(sql,
+                task.getTitle(),
+                task.getDescription(),
+                task.getProjectType(),
+                task.getStatus().name(),
+                task.getUpdatedAt(),
+                task.getDueDate(),
+                task.getEmployee() != null ? task.getEmployee().getId() : null,
+                task.getAttachment(),
+                task.getId());
     }
 }

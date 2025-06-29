@@ -26,4 +26,10 @@ public class AdminApi {
         String response = adminService.assignEmployeeToTask(employeeId, taskId);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/updateTask")
+    public ResponseEntity<String> updateTask(@RequestParam Long taskId, @RequestBody Task task) {
+        String response = adminService.updateTask(taskId, task);
+        return ResponseEntity.ok(response);
+    }
 }
