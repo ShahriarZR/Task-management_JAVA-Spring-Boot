@@ -3,11 +3,10 @@ package com.example.Project.service;
 import com.example.Project.entity.Employee;
 import com.example.Project.repository.EmployeeRepository;
 
-import com.example.Project.service.MailerService;
+import com.example.Project.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +16,13 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailerService mailerService;
+    private final JwtUtil jwtUtil;
 
-    public EmployeeService(EmployeeRepository employeeRepository, MailerService mailerService) {
+    public EmployeeService(EmployeeRepository employeeRepository, MailerService mailerService, JwtUtil jwtUtil) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.mailerService = mailerService;
+        this.jwtUtil = jwtUtil;
     }
 
     private String generateOtp() {
@@ -73,7 +74,8 @@ public class EmployeeService {
             response.put("error", "Please verify your email before logging in");
             return response;
         }
-        response.put("message", employee.getName() + " logged in successfully");
+        String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail());
+        response.put("access_token", token);
         return response;
     }
 

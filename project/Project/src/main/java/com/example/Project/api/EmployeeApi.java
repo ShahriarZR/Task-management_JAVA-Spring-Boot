@@ -29,17 +29,6 @@ public class EmployeeApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("email");
-        String password = loginRequest.get("password");
-        Map<String, String> response = employeeService.login(email, password);
-        if (response.containsKey("error")) {
-            return ResponseEntity.status(401).body(response.get("error"));
-        } else {
-            return ResponseEntity.ok(response.get("message"));
-        }
-    }
 
     @PostMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> request) {
