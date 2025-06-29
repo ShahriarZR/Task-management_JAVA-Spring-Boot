@@ -22,4 +22,12 @@ public class MailerService {
         message.setText("Your OTP code is: " + otp + "\nThis code will expire in 10 minutes.");
         mailSender.send(message);
     }
+
+    public void sendNotificationEmail(String email, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
+    }
 }

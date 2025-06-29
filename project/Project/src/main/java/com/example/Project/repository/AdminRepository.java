@@ -27,6 +27,11 @@ public class AdminRepository {
         return count != null && count > 0;
     }
 
+    public String getEmployeeEmailById(Long employeeId) {
+        String sql = "SELECT email FROM employee WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{employeeId}, String.class);
+    }
+
     public boolean taskExistsById(Long taskId) {
         String sql = "SELECT COUNT(*) FROM task WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, taskId);

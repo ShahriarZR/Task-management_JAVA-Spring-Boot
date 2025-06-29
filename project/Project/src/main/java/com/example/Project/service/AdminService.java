@@ -3,7 +3,9 @@ package com.example.Project.service;
 import com.example.Project.entity.Task;
 import com.example.Project.entity.Task.Status;
 import com.example.Project.repository.AdminRepository;
+import com.example.Project.service.MailerService;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -11,9 +13,12 @@ import java.time.LocalDateTime;
 public class AdminService {
 
     private final AdminRepository adminRepository;
+    private final MailerService mailerService;
 
-    public AdminService(AdminRepository adminRepository) {
+    @Autowired
+    public AdminService(AdminRepository adminRepository, MailerService mailerService) {
         this.adminRepository = adminRepository;
+        this.mailerService = mailerService;
     }
 
     public String createTask(Task task) {
@@ -54,6 +59,13 @@ public class AdminService {
         // Assign employee to task
         int rows = adminRepository.assignEmployeeToTask(employeeId, taskId);
         if (rows > 0) {
+            // Send notification email to employee
+            String employeeEmail = adminRepository.getEmployeeEmailById(employeeId);
+            if (employeeEmail != null && !employeeEmail.isEmpty()) {
+                String subject = "New Task Assigned";
+                String body = "You have been assigned a new task with ID: " + taskId + ". Please check your task list for details.";
+                mailerService.sendNotificationEmail(employeeEmail, subject, body);
+            }
             return "Employee assigned to task successfully";
         } else {
             return "Failed to assign employee to task";
@@ -94,6 +106,13 @@ public class AdminService {
 
         int rows = adminRepository.updateTask(existingTask);
         if (rows > 0) {
+            // Send notification email to assigned employee if exists
+            if (existingTask.getEmployee() != null && existingTask.getEmployee().getEmail() != null && !existingTask.getEmployee().getEmail().isEmpty()) {
+                String employeeEmail = existingTask.getEmployee().getEmail();
+                String subject = "Task Updated";
+                String body = "Your task with ID: " + taskId + " has been updated. Please check the details.";
+                mailerService.sendNotificationEmail(employeeEmail, subject, body);
+            }
             return "Task updated successfully";
         } else {
             return "Failed to update task";
