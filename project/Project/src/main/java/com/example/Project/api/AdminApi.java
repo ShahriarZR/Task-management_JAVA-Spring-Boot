@@ -20,4 +20,10 @@ public class AdminApi {
         String response = adminService.createTask(task);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/assignEmployeeToTask")
+    public ResponseEntity<String> assignEmployeeToTask(@RequestParam Long employeeId, @RequestParam Long taskId) {
+        String response = adminService.assignEmployeeToTask(employeeId, taskId);
+        return ResponseEntity.ok(response);
+    }
 }
