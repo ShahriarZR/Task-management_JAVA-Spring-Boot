@@ -1,9 +1,13 @@
 package com.example.Project.api;
 
+import com.example.Project.entity.Employee;
 import com.example.Project.entity.Task;
 import com.example.Project.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -38,4 +42,12 @@ public class AdminApi {
         java.util.List<Task> tasks = adminService.getAllTasks();
         return ResponseEntity.ok(tasks);
     }
+
+    @GetMapping("/employees")
+    public ResponseEntity<List<Map<String, Object>>> getAllEmployees() {
+        List<Map<String, Object>> employees = adminService.getAllEmployees();
+        return ResponseEntity.ok(employees);
+    }
+
+
 }

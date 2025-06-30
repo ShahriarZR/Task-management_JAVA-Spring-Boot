@@ -1,12 +1,16 @@
 package com.example.Project.repository;
 
+import com.example.Project.entity.Employee;
 import com.example.Project.entity.Task;
+import com.example.Project.enums.JobTitle;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class AdminRepository {
@@ -134,5 +138,11 @@ public class AdminRepository {
             task.setAttachment(rs.getString("attachment"));
             return task;
         });
+    }
+
+    public List<Map<String, Object>> getAllEmployees() {
+        String sql = "SELECT id, name, email, phone, address, job_title, is_email_verified FROM employee";
+
+        return jdbcTemplate.queryForList(sql);
     }
 }

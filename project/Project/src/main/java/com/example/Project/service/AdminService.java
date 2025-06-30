@@ -1,5 +1,6 @@
 package com.example.Project.service;
 
+import com.example.Project.entity.Employee;
 import com.example.Project.entity.Task;
 import com.example.Project.entity.Task.Status;
 import com.example.Project.repository.AdminRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminService {
@@ -122,5 +124,9 @@ public class AdminService {
         } else {
             return "Failed to update task";
         }
+    }
+
+    public List<Map<String, Object>> getAllEmployees() {
+        return adminRepository.getAllEmployees();
     }
 }
