@@ -1,6 +1,7 @@
 package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.enums.JobTitle;
 import com.example.Project.enums.Role;
 import com.example.Project.repository.EmployeeRepository;
 
@@ -26,6 +27,29 @@ public class EmployeeService {
         this.jwtUtil = jwtUtil;
     }
 
+    public String approveEmployee(Long employeeId, JobTitle jobTitle) {
+        // Check if the employee exists
+        boolean employeeExists = employeeRepository.employeeExists(employeeId);
+        if (!employeeExists) {
+            throw new IllegalArgumentException("Employee with ID " + employeeId + " does not exist");
+        }
+
+        // Proceed to approve the employee and update the job title
+        int rowsAffected = employeeRepository.approveEmployeeById(employeeId, jobTitle);
+        if (rowsAffected > 0) {
+            // Get the employee's email to send the approval notification
+            String employeeEmail = employeeRepository.getEmployeeEmailById(employeeId);
+            if (employeeEmail != null && !employeeEmail.isEmpty()) {
+                String subject = "Your Employee Status Has Been Approved";
+                String body = "Dear employee, \n\nYour application has been approved. Your job title is now: " + jobTitle.name();
+                mailerService.sendNotificationEmail(employeeEmail, subject, body);
+            }
+            return "Employee with ID " + employeeId + " has been approved successfully with job title: " + jobTitle.name();
+        } else {
+            return "Failed to approve employee with ID " + employeeId;
+        }
+    }
+
     private String generateOtp() {
         String digits = "0123456789";
         StringBuilder otp = new StringBuilder();
@@ -47,7 +71,8 @@ public class EmployeeService {
         employee.setOtpExpiry(expiry);
         employee.setEmailVerified(false);
         employee.setOtpVerified(false);
-        employee.setRole(Role.ADMIN);
+        employee.setRole(Role.USER);
+        employee.setApprovedByAdmin(false);  // Ensure new employees are not approved by default
 
         // Encode the password before saving
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
@@ -76,6 +101,11 @@ public class EmployeeService {
             response.put("error", "Please verify your email before logging in");
             return response;
         }
+        System.out.println(employee.isApprovedByAdmin());
+        if (!employee.isApprovedByAdmin()) {
+            response.put("error", "Wait for Admin to approve your account before logging in");
+            return response;
+        }
         String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail(), employee.getRole().name());
         response.put("access_token", token);
         return response;
@@ -96,13 +126,23 @@ public class EmployeeService {
             return "Incorrect OTP";
         }
 
+        // Set email verified and clear OTP related fields
         employee.setEmailVerified(true);
         employee.setLastOtpResend(null);
         employee.setOtp(null);
         employee.setOtpExpiry(null);
+        employee.setApprovedByAdmin(false);  // Ensure it is set to false during the email verification process
 
+        // Update employee record in the database
         employeeRepository.updateEmployeeVerification(employee);
 
-        return "Email verified successfully";
+        // Re-fetch the employee to ensure the updated values
+        employee = employeeRepository.findByEmail(email);
+
+        // Now the approvedByAdmin value should be up-to-date
+        System.out.println(employee.isApprovedByAdmin());  // This should print the updated value.
+
+        return "Email verified successfully. Waiting for admin approval. You will receive an email when approved.";
     }
+
 }

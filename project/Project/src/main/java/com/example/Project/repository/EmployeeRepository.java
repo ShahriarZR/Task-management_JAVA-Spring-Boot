@@ -2,6 +2,7 @@ package com.example.Project.repository;
 
 import com.example.Project.entity.Employee;
 import com.example.Project.enums.JobTitle;
+import com.example.Project.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -21,8 +22,28 @@ public class EmployeeRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public boolean employeeExists(Long employeeId) {
+        String sql = "SELECT COUNT(*) FROM employee WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, employeeId);
+        return count != null && count > 0;
+    }
+
+    // Method to approve an employee and update the jobTitle
+    public int approveEmployeeById(Long employeeId, JobTitle jobTitle) {
+        String sql = "UPDATE employee SET approved_by_admin = true, job_title = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, jobTitle.name(), employeeId);  // Update job title and approvedByAdmin
+    }
+
+    // Method to get the email of the employee by employeeId
+    public String getEmployeeEmailById(Long employeeId) {
+        String sql = "SELECT email FROM employee WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{employeeId}, String.class);
+    }
+
     public int saveEmployee(Employee employee) {
-        String sql = "INSERT INTO employee (name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO employee (name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified, approved_by_admin) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         return jdbcTemplate.update(sql,
                 employee.getName(),
                 employee.getEmail(),
@@ -35,27 +56,46 @@ public class EmployeeRepository {
                 employee.getLastOtpResend(),
                 employee.getOtpExpiry(),
                 employee.isEmailVerified(),
-                employee.isOtpVerified());
+                employee.isOtpVerified(),
+                employee.isApprovedByAdmin()  // Insert the approvedByAdmin value
+        );
     }
+
 
     public Employee findByEmail(String email) {
-        String sql = "SELECT * FROM employee WHERE email = ?";
-        List<Employee> employees = jdbcTemplate.query(sql, new Object[]{email}, new EmployeeRowMapper());
-        if (employees.isEmpty()) {
-            return null;
-        }
-        return employees.get(0);
+        String sql = "SELECT id, name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified, approved_by_admin FROM employee WHERE email = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{email}, (rs, rowNum) -> {
+            Employee employee = new Employee();
+            employee.setId(rs.getLong("id"));
+            employee.setName(rs.getString("name"));
+            employee.setEmail(rs.getString("email"));
+            employee.setJobTitle(JobTitle.valueOf(rs.getString("job_title")));
+            employee.setPhone(rs.getString("phone"));
+            employee.setAddress(rs.getString("address"));
+            employee.setRole(Role.valueOf(rs.getString("role")));
+            employee.setPassword(rs.getString("password"));
+            employee.setOtp(rs.getString("otp"));
+            employee.setLastOtpResend(rs.getTimestamp("last_otp_resend").toLocalDateTime());
+            employee.setOtpExpiry(rs.getTimestamp("otp_expiry").toLocalDateTime());
+            employee.setEmailVerified(rs.getBoolean("is_email_verified"));
+            employee.setOtpVerified(rs.getBoolean("is_otp_verified"));
+            employee.setApprovedByAdmin(rs.getBoolean("approved_by_admin"));  // Fetch approvedByAdmin
+            return employee;
+        });
     }
 
+
     public int updateEmployeeVerification(Employee employee) {
-        String sql = "UPDATE employee SET is_email_verified = ?, last_otp_resend = ?, otp = ?, otp_expiry = ? WHERE email = ?";
+        String sql = "UPDATE employee SET is_email_verified = ?, last_otp_resend = ?, otp = ?, otp_expiry = ?, approved_by_admin = ? WHERE email = ?";
         return jdbcTemplate.update(sql,
                 employee.isEmailVerified(),
                 employee.getLastOtpResend(),
                 employee.getOtp(),
                 employee.getOtpExpiry(),
+                employee.isApprovedByAdmin(),  // Update approved_by_admin here
                 employee.getEmail());
     }
+
 
     private static class EmployeeRowMapper implements RowMapper<Employee> {
         @Override

@@ -124,7 +124,7 @@ public class AdminRepository {
                 task.getId());
     }
 
-    public java.util.List<Task> getAllTasks() {
+    public List<Task> getAllTasks() {
         String sql = "SELECT id, title, description, project_type, status, created_at, updated_at, due_date, employee_id, attachment FROM task";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Task task = new Task();
@@ -184,6 +184,27 @@ public class AdminRepository {
         // If neither deletion was successful
         return "Failed to delete task with ID " + taskId;
     }
+
+    public int deleteEmployeeById(Long employeeId) {
+        // Check if the employee exists
+        if (!employeeExists(employeeId)) {
+            return 0; // Employee doesn't exist
+        }
+
+        // Delete associated tasks from employee_task first (if needed to maintain integrity)
+        String deleteEmployeeTaskSql = "DELETE FROM employee_task WHERE employee_id = ?";
+        jdbcTemplate.update(deleteEmployeeTaskSql, employeeId);
+
+        // Delete employee
+        String deleteEmployeeSql = "DELETE FROM employee WHERE id = ?";
+        return jdbcTemplate.update(deleteEmployeeSql, employeeId);  // Returns number of rows affected
+    }
+
+    public int approveEmployeeById(Long employeeId, JobTitle jobTitle) {
+        String sql = "UPDATE employee SET approved_by_admin = true, job_title = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, jobTitle.name(), employeeId);  // Update job title and approvedByAdmin
+    }
+
 
 
 }

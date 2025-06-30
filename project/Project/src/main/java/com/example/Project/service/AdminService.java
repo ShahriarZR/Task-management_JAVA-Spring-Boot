@@ -3,7 +3,9 @@ package com.example.Project.service;
 import com.example.Project.entity.Employee;
 import com.example.Project.entity.Task;
 import com.example.Project.entity.Task.Status;
+import com.example.Project.enums.JobTitle;
 import com.example.Project.repository.AdminRepository;
+import com.example.Project.repository.EmployeeRepository;
 import com.example.Project.service.MailerService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +17,21 @@ import java.util.Map;
 @Service
 public class AdminService {
 
+    private final EmployeeRepository employeeRepository;
     private final AdminRepository adminRepository;
     private final MailerService mailerService;
 
     @Autowired
-    public AdminService(AdminRepository adminRepository, MailerService mailerService) {
+    public AdminService(AdminRepository adminRepository, EmployeeRepository employeeRepository, MailerService mailerService) {
         this.adminRepository = adminRepository;
+        this.employeeRepository = employeeRepository;
         this.mailerService = mailerService;
+    }
+
+    public static class TaskNotFoundException extends RuntimeException {
+        public TaskNotFoundException(String message) {
+            super(message);
+        }
     }
 
     public String createTask(Task task) {
@@ -32,11 +42,15 @@ public class AdminService {
             task.setStatus(Status.PENDING);
         }
 
-        int rows = adminRepository.saveTask(task);
-        if (rows > 0) {
-            return "Task created successfully";
-        } else {
-            return "Task with the same title and due date already exists";
+        try {
+            int result = adminRepository.saveTask(task);
+            if (result > 0) {
+                return "Task created successfully";
+            } else {
+                throw new IllegalArgumentException("Task already exists");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create task", e);
         }
     }
 
@@ -48,13 +62,13 @@ public class AdminService {
         // Check if employee exists
         boolean employeeExists = adminRepository.employeeExists(employeeId);
         if (!employeeExists) {
-            return "Employee with ID " + employeeId + " does not exist";
+            throw new IllegalArgumentException("Employee with ID " + employeeId + " does not exist");
         }
 
         // Check if task exists
         boolean taskExists = adminRepository.taskExistsById(taskId);
         if (!taskExists) {
-            return "Task with ID " + taskId + " does not exist";
+            throw new IllegalArgumentException("Task with ID " + taskId + " does not exist");
         }
 
         // Check if task is already assigned to the same employee
@@ -63,10 +77,10 @@ public class AdminService {
             return "Task is already assigned to this employee";
         }
 
-        // Assign employee to task
-        int rows = adminRepository.assignEmployeeToTask(employeeId, taskId);
-        if (rows > 1) { // Because now it returns sum of two updates
-            // Send notification email to employee
+        // Proceed to assign the employee to the task
+        int rowsAffected = adminRepository.assignEmployeeToTask(employeeId, taskId);
+        if (rowsAffected > 1) { // Two updates are performed, so rowsAffected should be greater than 1
+            // Send a notification email to the employee
             String employeeEmail = adminRepository.getEmployeeEmailById(employeeId);
             if (employeeEmail != null && !employeeEmail.isEmpty()) {
                 String subject = "New Task Assigned";
@@ -79,11 +93,21 @@ public class AdminService {
         }
     }
 
+
+
     public String updateTask(Long taskId, Task task) {
         // Check if task exists
         Task existingTask = adminRepository.getTaskById(taskId);
         if (existingTask == null) {
-            return "Task with ID " + taskId + " does not exist";
+            throw new TaskNotFoundException("Task with ID " + taskId + " does not exist");
+        }
+
+        // Check if employee exists (if updated)
+        if (task.getEmployee() != null) {
+            boolean employeeExists = adminRepository.employeeExists(task.getEmployee().getId());
+            if (!employeeExists) {
+                throw new IllegalArgumentException("Employee with ID " + task.getEmployee().getId() + " does not exist");
+            }
         }
 
         // Update only non-null fields
@@ -122,10 +146,9 @@ public class AdminService {
             }
             return "Task updated successfully";
         } else {
-            return "Failed to update task";
+            throw new RuntimeException("Failed to update task");
         }
     }
-
     public List<Map<String, Object>> getAllEmployees() {
         return adminRepository.getAllEmployees();
     }
@@ -137,5 +160,45 @@ public class AdminService {
         // Return the message from the repository layer
         return responseMessage;
     }
+
+    public String deleteEmployee(Long employeeId) {
+        // Check if employee exists
+        boolean employeeExists = adminRepository.employeeExists(employeeId);
+        if (!employeeExists) {
+            throw new IllegalArgumentException("Employee with ID " + employeeId + " does not exist");
+        }
+
+        // Proceed to delete the employee
+        int rowsAffected = adminRepository.deleteEmployeeById(employeeId);
+        if (rowsAffected > 0) {
+            return "Employee with ID " + employeeId + " deleted successfully";
+        } else {
+            return "Failed to delete employee with ID " + employeeId;
+        }
+    }
+
+    public String approveEmployee(Long employeeId, JobTitle jobTitle) {
+        // Check if the employee exists
+        boolean employeeExists = employeeRepository.employeeExists(employeeId);
+        if (!employeeExists) {
+            throw new IllegalArgumentException("Employee with ID " + employeeId + " does not exist");
+        }
+
+        // Proceed to approve the employee and update the job title
+        int rowsAffected = employeeRepository.approveEmployeeById(employeeId, jobTitle);
+        if (rowsAffected > 0) {
+            // Get the employee's email to send the approval notification
+            String employeeEmail = employeeRepository.getEmployeeEmailById(employeeId);
+            if (employeeEmail != null && !employeeEmail.isEmpty()) {
+                String subject = "Your Employee Status Has Been Approved";
+                String body = "Dear employee, \n\nYour application has been approved. Your Designation is: " + jobTitle.name();
+                mailerService.sendNotificationEmail(employeeEmail, subject, body);
+            }
+            return "Employee with ID " + employeeId + " has been approved successfully with job title: " + jobTitle.name();
+        } else {
+            return "Failed to approve employee with ID " + employeeId;
+        }
+    }
+
 
 }

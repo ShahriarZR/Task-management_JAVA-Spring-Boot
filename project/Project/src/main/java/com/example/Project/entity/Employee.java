@@ -32,7 +32,6 @@ public class Employee {
     @Column(length = 100, nullable = false)
     private String password;
 
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private Role role = Role.USER; // Set default value in Java instead of DB level
@@ -51,6 +50,10 @@ public class Employee {
 
     @Column(nullable = false)
     private boolean isOtpVerified = false;
+
+    // New column to track admin approval
+    @Column(nullable = false)
+    private boolean approvedByAdmin = false;
 
     // Getters and Setters
 
@@ -156,5 +159,14 @@ public class Employee {
 
     public void setOtpVerified(boolean otpVerified) {
         isOtpVerified = otpVerified;
+    }
+
+    // Getter and Setter for the new "approvedByAdmin" column
+    public boolean isApprovedByAdmin() {
+        return approvedByAdmin;
+    }
+
+    public void setApprovedByAdmin(boolean approvedByAdmin) {
+        this.approvedByAdmin = approvedByAdmin;
     }
 }
