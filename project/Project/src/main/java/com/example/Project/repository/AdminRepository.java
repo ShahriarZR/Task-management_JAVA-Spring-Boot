@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 public class AdminRepository {
 
@@ -39,8 +41,13 @@ public class AdminRepository {
     }
 
     public int assignEmployeeToTask(Long employeeId, Long taskId) {
-        String sql = "UPDATE task SET employee_id = ? WHERE id = ?";
-        return jdbcTemplate.update(sql, employeeId, taskId);
+        String updateTaskSql = "UPDATE task SET employee_id = ? WHERE id = ?";
+        int updateCount = jdbcTemplate.update(updateTaskSql, employeeId, taskId);
+
+        String insertEmployeeTaskSql = "INSERT INTO employee_task (employee_id, assigned_task_id, created_at, assigned_at, priority) VALUES (?, ?, ?, ?, ?)";
+        int insertCount = jdbcTemplate.update(insertEmployeeTaskSql, employeeId, taskId, LocalDateTime.now(), LocalDateTime.now(), "LOW");
+
+        return updateCount + insertCount;
     }
 
     public boolean isTaskAssignedToEmployee(Long employeeId, Long taskId) {

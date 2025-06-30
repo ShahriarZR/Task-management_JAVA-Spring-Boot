@@ -15,7 +15,7 @@ public class EmployeeTask {
 
     // Many tasks can be assigned to one task entity
     @ManyToOne
-    @JoinColumn(name = "assignedTaskId", nullable = false)
+    @JoinColumn(name = "assigned_task_id", nullable = false)
     private Task assignedTask;
 
     // Many employee tasks can belong to one employee

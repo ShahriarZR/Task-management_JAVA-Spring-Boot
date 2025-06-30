@@ -58,7 +58,7 @@ public class AdminService {
 
         // Assign employee to task
         int rows = adminRepository.assignEmployeeToTask(employeeId, taskId);
-        if (rows > 0) {
+        if (rows > 1) { // Because now it returns sum of two updates
             // Send notification email to employee
             String employeeEmail = adminRepository.getEmployeeEmailById(employeeId);
             if (employeeEmail != null && !employeeEmail.isEmpty()) {
