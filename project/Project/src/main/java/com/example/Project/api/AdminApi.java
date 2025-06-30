@@ -32,4 +32,10 @@ public class AdminApi {
         String response = adminService.updateTask(taskId, task);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/tasks")
+    public ResponseEntity<java.util.List<Task>> getAllTasks() {
+        java.util.List<Task> tasks = adminService.getAllTasks();
+        return ResponseEntity.ok(tasks);
+    }
 }

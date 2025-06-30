@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class AdminService {
@@ -35,6 +36,10 @@ public class AdminService {
         } else {
             return "Task with the same title and due date already exists";
         }
+    }
+
+    public List<Task> getAllTasks() {
+        return adminRepository.getAllTasks();
     }
 
     public String assignEmployeeToTask(Long employeeId, Long taskId) {
@@ -102,7 +107,7 @@ public class AdminService {
             existingTask.setAttachment(task.getAttachment());
         }
 
-        existingTask.setUpdatedAt(java.time.LocalDateTime.now());
+        existingTask.setUpdatedAt(LocalDateTime.now());
 
         int rows = adminRepository.updateTask(existingTask);
         if (rows > 0) {

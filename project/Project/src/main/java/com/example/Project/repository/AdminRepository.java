@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public class AdminRepository {
@@ -109,5 +110,29 @@ public class AdminRepository {
                 task.getEmployee() != null ? task.getEmployee().getId() : null,
                 task.getAttachment(),
                 task.getId());
+    }
+
+    public java.util.List<Task> getAllTasks() {
+        String sql = "SELECT id, title, description, project_type, status, created_at, updated_at, due_date, employee_id, attachment FROM task";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Task task = new Task();
+            task.setId(rs.getLong("id"));
+            task.setTitle(rs.getString("title"));
+            task.setDescription(rs.getString("description"));
+            task.setProjectType(rs.getString("project_type"));
+            task.setStatus(Task.Status.valueOf(rs.getString("status")));
+            task.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            task.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+            task.setDueDate(rs.getTimestamp("due_date") != null ? rs.getTimestamp("due_date").toLocalDateTime() : null);
+            Long employeeId = rs.getLong("employee_id");
+            if (employeeId != null && employeeId != 0) {
+                // Assuming Employee object can be set with just id for now
+                com.example.Project.entity.Employee employee = new com.example.Project.entity.Employee();
+                employee.setId(employeeId);
+                task.setEmployee(employee);
+            }
+            task.setAttachment(rs.getString("attachment"));
+            return task;
+        });
     }
 }
