@@ -129,4 +129,13 @@ public class AdminService {
     public List<Map<String, Object>> getAllEmployees() {
         return adminRepository.getAllEmployees();
     }
+
+    public String deleteTask(Long taskId) {
+        // Call the repository to delete the task and get the response message
+        String responseMessage = adminRepository.deleteTaskById(taskId);
+
+        // Return the message from the repository layer
+        return responseMessage;
+    }
+
 }

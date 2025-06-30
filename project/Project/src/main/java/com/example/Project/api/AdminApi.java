@@ -3,6 +3,7 @@ package com.example.Project.api;
 import com.example.Project.entity.Employee;
 import com.example.Project.entity.Task;
 import com.example.Project.service.AdminService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,16 +38,33 @@ public class AdminApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/tasks")
+    @GetMapping("/all-tasks")
     public ResponseEntity<java.util.List<Task>> getAllTasks() {
         java.util.List<Task> tasks = adminService.getAllTasks();
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/employees")
+    @GetMapping("/all-employees")
     public ResponseEntity<List<Map<String, Object>>> getAllEmployees() {
         List<Map<String, Object>> employees = adminService.getAllEmployees();
         return ResponseEntity.ok(employees);
+    }
+
+    @DeleteMapping("/deleteTask/{taskId}")
+    public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
+        String responseMessage = adminService.deleteTask(taskId);
+
+        // Check the response message and set the appropriate status code
+        if (responseMessage.contains("does not exist")) {
+            // If task doesn't exist, return 404 Not Found
+            return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
+        } else if (responseMessage.contains("Failed")) {
+            // If task deletion failed, return 500 Internal Server Error
+            return new ResponseEntity<>(responseMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            // Success: task deleted successfully
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        }
     }
 
 

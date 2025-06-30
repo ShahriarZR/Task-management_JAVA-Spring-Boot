@@ -5,6 +5,7 @@ import com.example.Project.entity.Task;
 import com.example.Project.enums.JobTitle;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -80,27 +81,34 @@ public class AdminRepository {
 
     public Task getTaskById(Long taskId) {
         String sql = "SELECT id, title, description, project_type, status, created_at, updated_at, due_date, employee_id, attachment FROM task WHERE id = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{taskId}, (rs, rowNum) -> {
-            Task task = new Task();
-            task.setId(rs.getLong("id"));
-            task.setTitle(rs.getString("title"));
-            task.setDescription(rs.getString("description"));
-            task.setProjectType(rs.getString("project_type"));
-            task.setStatus(Task.Status.valueOf(rs.getString("status")));
-            task.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-            task.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-            task.setDueDate(rs.getTimestamp("due_date") != null ? rs.getTimestamp("due_date").toLocalDateTime() : null);
-            Long employeeId = rs.getLong("employee_id");
-            if (employeeId != null && employeeId != 0) {
-                // Assuming Employee object can be set with just id for now
-                com.example.Project.entity.Employee employee = new com.example.Project.entity.Employee();
-                employee.setId(employeeId);
-                task.setEmployee(employee);
-            }
-            task.setAttachment(rs.getString("attachment"));
-            return task;
-        });
+
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{taskId}, (rs, rowNum) -> {
+                Task task = new Task();
+                task.setId(rs.getLong("id"));
+                task.setTitle(rs.getString("title"));
+                task.setDescription(rs.getString("description"));
+                task.setProjectType(rs.getString("project_type"));
+                task.setStatus(Task.Status.valueOf(rs.getString("status")));
+                task.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                task.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                task.setDueDate(rs.getTimestamp("due_date") != null ? rs.getTimestamp("due_date").toLocalDateTime() : null);
+                Long employeeId = rs.getLong("employee_id");
+                if (employeeId != null && employeeId != 0) {
+                    // Assuming Employee object can be set with just id for now
+                    com.example.Project.entity.Employee employee = new com.example.Project.entity.Employee();
+                    employee.setId(employeeId);
+                    task.setEmployee(employee);
+                }
+                task.setAttachment(rs.getString("attachment"));
+                return task;
+            });
+        } catch (EmptyResultDataAccessException e) {
+            // Handle the case when no task is found for the given taskId
+            return null;
+        }
     }
+
 
     public int updateTask(Task task) {
         String sql = "UPDATE task SET title = ?, description = ?, project_type = ?, status = ?, updated_at = ?, due_date = ?, employee_id = ?, attachment = ? WHERE id = ?";
@@ -145,4 +153,37 @@ public class AdminRepository {
 
         return jdbcTemplate.queryForList(sql);
     }
+
+    public String deleteTaskById(Long taskId) {
+        // First, check if the task exists
+        Task task = getTaskById(taskId);
+        if (task == null) {
+            return "Task with ID " + taskId + " does not exist";  // Task does not exist
+        }
+
+        // If task exists, proceed with deletion
+
+        // Delete corresponding record from employee_task (if assigned)
+        String deleteEmployeeTaskSql = "DELETE FROM employee_task WHERE assigned_task_id = ?";
+        int deleteEmployeeTaskCount = jdbcTemplate.update(deleteEmployeeTaskSql, taskId);
+
+        // Now, delete the task from the task table
+        String deleteTaskSql = "DELETE FROM task WHERE id = ?";
+        int deleteTaskCount = jdbcTemplate.update(deleteTaskSql, taskId);
+
+        // If both delete operations are successful
+        if (deleteEmployeeTaskCount > 0 && deleteTaskCount > 0) {
+            return "Task with ID " + taskId + " and its assignment(s) deleted successfully.";
+        }
+
+        // If the task was deleted but no records found in employee_task
+        if (deleteTaskCount > 0 && deleteEmployeeTaskCount == 0) {
+            return "Task with ID " + taskId + " deleted successfully, but no associated employee assignments were found.";
+        }
+
+        // If neither deletion was successful
+        return "Failed to delete task with ID " + taskId;
+    }
+
+
 }
