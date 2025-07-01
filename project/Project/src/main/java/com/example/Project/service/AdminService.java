@@ -204,18 +204,20 @@ public class AdminService {
 
     public String deleteTask(Long taskId, Long senderId) {
         // Call the repository to delete the task and get the response message
-        String responseMessage = adminRepository.deleteTaskById(taskId);
 
-        // If the task is assigned to an employee, save the notification
+
+        // Retrieve the task to check if it is assigned to an employee
         Task task = adminRepository.getTaskById(taskId);
         if (task != null && task.getEmployee() != null) {
             // If task is assigned to an employee, create and save a notification
+
+            // Create sender and receiver Employee objects
             Employee sender = new Employee();
             sender.setId(senderId);  // Setting the sender's ID (the employee performing the action)
 
             Employee receiver = task.getEmployee(); // The employee assigned to the task (receiver)
 
-            // Create a new notification
+            // Create a new notification for task deletion
             Notification notification = new Notification();
             notification.setMessage("Your task with ID: " + taskId + " has been deleted.");
             notification.setSender(sender);  // Sender is the logged-in employee (who is performing the action)
@@ -229,14 +231,18 @@ public class AdminService {
             // Send notification email to the assigned employee
             String employeeEmail = adminRepository.getEmployeeEmailById(receiver.getId());
             if (employeeEmail != null && !employeeEmail.isEmpty()) {
+                // Log the email to verify it's being retrieved correctly
+                System.out.println("Sending email to: " + employeeEmail);
                 String subject = "Task Deleted";
                 String body = "Your task with ID: " + taskId + " has been deleted. Please check your task list.";
                 mailerService.sendNotificationEmail(employeeEmail, subject, body);
             }
         }
+        String responseMessage = adminRepository.deleteTaskById(taskId);
 
         return responseMessage;
     }
+
 
 
     public String deleteEmployee(Long employeeId) {
