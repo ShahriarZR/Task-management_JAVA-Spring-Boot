@@ -117,9 +117,6 @@ public class AdminService {
         }
     }
 
-
-
-
     public String updateTask(Long taskId, Task task, Long senderId) {
         // Check if task exists
         Task existingTask = adminRepository.getTaskById(taskId);
@@ -134,6 +131,8 @@ public class AdminService {
                 throw new IllegalArgumentException("Employee with ID " + task.getEmployee().getId() + " does not exist");
             }
         }
+
+        //System.out.println(task.getEmployee());
 
         // Update only non-null fields
         if (task.getTitle() != null) {
@@ -181,11 +180,15 @@ public class AdminService {
                 notificationRepository.saveNotification(notification);
 
                 // Send a notification email to the assigned employee
-                if (receiver.getEmail() != null && !receiver.getEmail().isEmpty()) {
+                String employeeEmail = adminRepository.getEmployeeEmailById(receiver.getId());
+                if (employeeEmail != null && !employeeEmail.isEmpty()) {
+                    // Log the email to verify it's being retrieved correctly
+                    System.out.println("Sending email to: " + employeeEmail);
                     String subject = "Task Updated";
                     String body = "Your task with ID: " + taskId + " has been updated. Please check the details.";
-                    mailerService.sendNotificationEmail(receiver.getEmail(), subject, body);
+                    mailerService.sendNotificationEmail(employeeEmail, subject, body);
                 }
+
             }
 
             return "Task updated successfully";
@@ -199,13 +202,42 @@ public class AdminService {
         return adminRepository.getAllEmployees();
     }
 
-    public String deleteTask(Long taskId) {
+    public String deleteTask(Long taskId, Long senderId) {
         // Call the repository to delete the task and get the response message
         String responseMessage = adminRepository.deleteTaskById(taskId);
 
-        // Return the message from the repository layer
+        // If the task is assigned to an employee, save the notification
+        Task task = adminRepository.getTaskById(taskId);
+        if (task != null && task.getEmployee() != null) {
+            // If task is assigned to an employee, create and save a notification
+            Employee sender = new Employee();
+            sender.setId(senderId);  // Setting the sender's ID (the employee performing the action)
+
+            Employee receiver = task.getEmployee(); // The employee assigned to the task (receiver)
+
+            // Create a new notification
+            Notification notification = new Notification();
+            notification.setMessage("Your task with ID: " + taskId + " has been deleted.");
+            notification.setSender(sender);  // Sender is the logged-in employee (who is performing the action)
+            notification.setReceiver(receiver);  // Receiver is the employee assigned to the task
+            notification.setCreatedAt(LocalDateTime.now());
+            notification.setStatus(Notification.Status.UNREAD);  // Set status to UNREAD by default
+
+            // Save the notification in the database
+            notificationRepository.saveNotification(notification);
+
+            // Send notification email to the assigned employee
+            String employeeEmail = adminRepository.getEmployeeEmailById(receiver.getId());
+            if (employeeEmail != null && !employeeEmail.isEmpty()) {
+                String subject = "Task Deleted";
+                String body = "Your task with ID: " + taskId + " has been deleted. Please check your task list.";
+                mailerService.sendNotificationEmail(employeeEmail, subject, body);
+            }
+        }
+
         return responseMessage;
     }
+
 
     public String deleteEmployee(Long employeeId) {
         // Check if employee exists

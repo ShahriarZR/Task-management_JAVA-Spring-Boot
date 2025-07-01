@@ -69,7 +69,7 @@ public class AdminApi {
             String token = authHeader.substring(7);  // "Bearer <token>"
             Long senderId = jwtUtil.extractEmployeeId(token);  // Extract sender ID from token
 
-            // Call the service to update the task, passing senderId
+            // Call the service to update the task
             String response = adminService.updateTask(taskId, task, senderId);
             return new ResponseEntity<>(response, HttpStatus.OK); // Success
         } catch (AdminService.TaskNotFoundException e) {
@@ -112,21 +112,31 @@ public class AdminApi {
 
 
     @DeleteMapping("/deleteTask/{taskId}")
-    public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
-        String responseMessage = adminService.deleteTask(taskId);
+    public ResponseEntity<String> deleteTask(@PathVariable Long taskId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract the access token from the Authorization header
+            String token = authHeader.substring(7);  // "Bearer <token>"
+            Long senderId = jwtUtil.extractEmployeeId(token);  // Extract senderId from the token
 
-        // Check the response message and set the appropriate status code
-        if (responseMessage.contains("does not exist")) {
-            // If task doesn't exist, return 404 Not Found
-            return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
-        } else if (responseMessage.contains("Failed")) {
-            // If task deletion failed, return 500 Internal Server Error
-            return new ResponseEntity<>(responseMessage, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
-            // Success: task deleted successfully
-            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+            // Call the service to delete the task, passing the senderId (logged-in employee's ID)
+            String responseMessage = adminService.deleteTask(taskId, senderId);
+
+            // Check the response message and set the appropriate status code
+            if (responseMessage.contains("does not exist")) {
+                // If task doesn't exist, return 404 Not Found
+                return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
+            } else if (responseMessage.contains("Failed")) {
+                // If task deletion failed, return 500 Internal Server Error
+                return new ResponseEntity<>(responseMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+            } else {
+                // Success: task deleted successfully
+                return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to delete task", HttpStatus.INTERNAL_SERVER_ERROR); // General server error
         }
     }
+
 
     @DeleteMapping("/terminateEmployee/{employeeId}")
     public ResponseEntity<String> deleteEmployee(@PathVariable Long employeeId) {
