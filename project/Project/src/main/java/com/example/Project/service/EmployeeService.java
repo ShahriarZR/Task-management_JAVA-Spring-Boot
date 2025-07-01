@@ -1,6 +1,7 @@
 package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.entity.Notification;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.enums.Role;
 import com.example.Project.repository.EmployeeRepository;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -41,7 +43,7 @@ public class EmployeeService {
             String employeeEmail = employeeRepository.getEmployeeEmailById(employeeId);
             if (employeeEmail != null && !employeeEmail.isEmpty()) {
                 String subject = "Your Employee Status Has Been Approved";
-                String body = "Dear employee, \n\nYour application has been approved. Your job title is now: " + jobTitle.name();
+                String body = "Dear employee, \n\nYour application has been approved. Your Designation is: " + jobTitle.name();
                 mailerService.sendNotificationEmail(employeeEmail, subject, body);
             }
             return "Employee with ID " + employeeId + " has been approved successfully with job title: " + jobTitle.name();
@@ -73,7 +75,6 @@ public class EmployeeService {
         employee.setOtpVerified(false);
         employee.setRole(Role.USER);
         employee.setApprovedByAdmin(false);  // Ensure new employees are not approved by default
-
         // Encode the password before saving
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 
@@ -140,9 +141,34 @@ public class EmployeeService {
         employee = employeeRepository.findByEmail(email);
 
         // Now the approvedByAdmin value should be up-to-date
-        System.out.println(employee.isApprovedByAdmin());  // This should print the updated value.
 
         return "Email verified successfully. Waiting for admin approval. You will receive an email when approved.";
+    }
+
+    public List<Map<String, Object>> getUnapprovedEmployees() {
+        return employeeRepository.getUnapprovedEmployees();  // Call the repository method to fetch unapproved employees
+    }
+
+    public String sendNotification(Long senderId, Long receiverId, String message) {
+        // Get the sender and receiver Employee objects (assuming they are retrieved from the database)
+        Employee sender = new Employee();  // Fetch sender from DB based on senderId
+        sender.setId(senderId);
+        Employee receiver = new Employee();  // Fetch receiver from DB based on receiverId
+        receiver.setId(receiverId);
+
+        Notification notification = new Notification();
+        notification.setSender(sender);
+        notification.setReceiver(receiver);
+        notification.setMessage(message);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setStatus(Notification.Status.UNREAD);  // Set status to UNREAD by default
+
+        int rowsAffected = employeeRepository.sendNotification(notification);
+        if (rowsAffected > 0) {
+            return "Notification sent successfully.";
+        } else {
+            return "Failed to send notification.";
+        }
     }
 
 }

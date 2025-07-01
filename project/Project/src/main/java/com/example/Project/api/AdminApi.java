@@ -8,6 +8,7 @@ import com.example.Project.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.Project.util.JwtUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -18,10 +19,12 @@ public class AdminApi {
 
     private final AdminService adminService;
     private final EmployeeService employeeService;
+    private final JwtUtil jwtUtil;
 
-    public AdminApi(AdminService adminService, EmployeeService employeeService) {
+    public AdminApi(AdminService adminService, EmployeeService employeeService, JwtUtil jwtUtil) {
         this.adminService = adminService;
         this.employeeService = employeeService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/createTask")
@@ -39,10 +42,14 @@ public class AdminApi {
 
 
     @PostMapping("/assignEmployeeToTask")
-    public ResponseEntity<String> assignEmployeeToTask(@RequestParam Long employeeId, @RequestParam Long taskId) {
+    public ResponseEntity<String> assignEmployeeToTask(@RequestParam Long employeeId, @RequestParam Long taskId, @RequestHeader("Authorization") String authHeader) {
         try {
-            // Attempt to assign employee to task
-            String response = adminService.assignEmployeeToTask(employeeId, taskId);
+            // Extract the access token from the Authorization header
+            String token = authHeader.substring(7);  // "Bearer <token>"
+            Long senderId = jwtUtil.extractEmployeeId(token);  // Extract the senderId from the token
+
+            // Attempt to assign the employee to the task
+            String response = adminService.assignEmployeeToTask(employeeId, taskId, senderId);
             return new ResponseEntity<>(response, HttpStatus.OK); // Return success with 200 OK
         } catch (IllegalArgumentException e) {
             // If employee or task doesn't exist, return error with 400 Bad Request
@@ -56,9 +63,14 @@ public class AdminApi {
 
 
     @PutMapping("/updateTask")
-    public ResponseEntity<String> updateTask(@RequestParam Long taskId, @RequestBody Task task) {
+    public ResponseEntity<String> updateTask(@RequestParam Long taskId, @RequestBody Task task, @RequestHeader("Authorization") String authHeader) {
         try {
-            String response = adminService.updateTask(taskId, task);
+            // Extract the access token from the Authorization header
+            String token = authHeader.substring(7);  // "Bearer <token>"
+            Long senderId = jwtUtil.extractEmployeeId(token);  // Extract sender ID from token
+
+            // Call the service to update the task, passing senderId
+            String response = adminService.updateTask(taskId, task, senderId);
             return new ResponseEntity<>(response, HttpStatus.OK); // Success
         } catch (AdminService.TaskNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // Task not found
@@ -143,6 +155,19 @@ public class AdminApi {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // Employee not found
         } catch (Exception e) {
             return new ResponseEntity<>("Failed to approve employee", HttpStatus.INTERNAL_SERVER_ERROR); // General error
+        }
+    }
+
+    @GetMapping("/getUnapprovedEmployees")
+    public ResponseEntity<List<Map<String, Object>>> getUnapprovedEmployees() {
+        try {
+            List<Map<String, Object>> employees = employeeService.getUnapprovedEmployees();
+            if (employees.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No unapproved employees found
+            }
+            return new ResponseEntity<>(employees, HttpStatus.OK); // Return unapproved employees
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Internal server error
         }
     }
 

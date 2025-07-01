@@ -1,6 +1,7 @@
 package com.example.Project.repository;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.entity.Notification;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class EmployeeRepository {
@@ -69,20 +72,31 @@ public class EmployeeRepository {
             employee.setId(rs.getLong("id"));
             employee.setName(rs.getString("name"));
             employee.setEmail(rs.getString("email"));
-            employee.setJobTitle(JobTitle.valueOf(rs.getString("job_title")));
+            String jobTitleStr = rs.getString("job_title");
+            if (jobTitleStr != null) {
+                employee.setJobTitle(JobTitle.valueOf(jobTitleStr));
+            }
+
             employee.setPhone(rs.getString("phone"));
             employee.setAddress(rs.getString("address"));
             employee.setRole(Role.valueOf(rs.getString("role")));
             employee.setPassword(rs.getString("password"));
             employee.setOtp(rs.getString("otp"));
-            employee.setLastOtpResend(rs.getTimestamp("last_otp_resend").toLocalDateTime());
-            employee.setOtpExpiry(rs.getTimestamp("otp_expiry").toLocalDateTime());
+
+            // Handle possible null value for lastOtpResend and otpExpiry
+            Timestamp lastOtpResendTimestamp = rs.getTimestamp("last_otp_resend");
+            employee.setLastOtpResend(lastOtpResendTimestamp != null ? lastOtpResendTimestamp.toLocalDateTime() : null);
+
+            Timestamp otpExpiryTimestamp = rs.getTimestamp("otp_expiry");
+            employee.setOtpExpiry(otpExpiryTimestamp != null ? otpExpiryTimestamp.toLocalDateTime() : null);
+
             employee.setEmailVerified(rs.getBoolean("is_email_verified"));
             employee.setOtpVerified(rs.getBoolean("is_otp_verified"));
-            employee.setApprovedByAdmin(rs.getBoolean("approved_by_admin"));  // Fetch approvedByAdmin
+            employee.setApprovedByAdmin(rs.getBoolean("approved_by_admin"));
             return employee;
         });
     }
+
 
 
     public int updateEmployeeVerification(Employee employee) {
@@ -94,6 +108,25 @@ public class EmployeeRepository {
                 employee.getOtpExpiry(),
                 employee.isApprovedByAdmin(),  // Update approved_by_admin here
                 employee.getEmail());
+    }
+
+    public List<Map<String, Object>> getUnapprovedEmployees() {
+        String sql = "SELECT id, name, email, phone, address, job_title, is_email_verified, approved_by_admin " +
+                "FROM employee WHERE approved_by_admin = false"; // Query for employees who are not approved
+
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public int sendNotification(Notification notification) {
+        String sql = "INSERT INTO notification (message, sender_id, receiver_id, created_at, status) "
+                + "VALUES (?, ?, ?, ?, ?)";
+
+        return jdbcTemplate.update(sql,
+                notification.getMessage(),
+                notification.getSender().getId(),
+                notification.getReceiver().getId(),
+                notification.getCreatedAt(),
+                notification.getStatus().name());
     }
 
 

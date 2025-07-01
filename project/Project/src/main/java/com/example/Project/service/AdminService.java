@@ -1,11 +1,13 @@
 package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.entity.Notification;
 import com.example.Project.entity.Task;
 import com.example.Project.entity.Task.Status;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.repository.AdminRepository;
 import com.example.Project.repository.EmployeeRepository;
+import com.example.Project.repository.NotificationRepository;
 import com.example.Project.service.MailerService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +22,15 @@ public class AdminService {
     private final EmployeeRepository employeeRepository;
     private final AdminRepository adminRepository;
     private final MailerService mailerService;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public AdminService(AdminRepository adminRepository, EmployeeRepository employeeRepository, MailerService mailerService) {
+    public AdminService(AdminRepository adminRepository, EmployeeRepository employeeRepository, MailerService mailerService, NotificationRepository notificationRepository) {
         this.adminRepository = adminRepository;
         this.employeeRepository = employeeRepository;
         this.mailerService = mailerService;
+        this.notificationRepository = notificationRepository;
+
     }
 
     public static class TaskNotFoundException extends RuntimeException {
@@ -58,7 +63,7 @@ public class AdminService {
         return adminRepository.getAllTasks();
     }
 
-    public String assignEmployeeToTask(Long employeeId, Long taskId) {
+    public String assignEmployeeToTask(Long employeeId, Long taskId, Long senderId) {
         // Check if employee exists
         boolean employeeExists = adminRepository.employeeExists(employeeId);
         if (!employeeExists) {
@@ -80,6 +85,24 @@ public class AdminService {
         // Proceed to assign the employee to the task
         int rowsAffected = adminRepository.assignEmployeeToTask(employeeId, taskId);
         if (rowsAffected > 1) { // Two updates are performed, so rowsAffected should be greater than 1
+
+            // Create a new notification
+            Employee sender = new Employee();
+            sender.setId(senderId); // Set the sender (who is assigning the task)
+
+            Employee receiver = new Employee();
+            receiver.setId(employeeId); // Set the receiver (the employee being assigned the task)
+
+            Notification notification = new Notification();
+            notification.setMessage("You have been assigned a new task with ID: " + taskId + ". Please check your task list for details.");
+            notification.setSender(sender);
+            notification.setReceiver(receiver);
+            notification.setCreatedAt(LocalDateTime.now());
+            notification.setStatus(Notification.Status.UNREAD); // Set status to UNREAD by default
+
+            // Save the notification in the database
+            notificationRepository.saveNotification(notification);
+
             // Send a notification email to the employee
             String employeeEmail = adminRepository.getEmployeeEmailById(employeeId);
             if (employeeEmail != null && !employeeEmail.isEmpty()) {
@@ -87,7 +110,8 @@ public class AdminService {
                 String body = "You have been assigned a new task with ID: " + taskId + ". Please check your task list for details.";
                 mailerService.sendNotificationEmail(employeeEmail, subject, body);
             }
-            return "Employee assigned to task successfully";
+
+            return "Employee assigned to task successfully and notification sent.";
         } else {
             return "Failed to assign employee to task";
         }
@@ -95,7 +119,8 @@ public class AdminService {
 
 
 
-    public String updateTask(Long taskId, Task task) {
+
+    public String updateTask(Long taskId, Task task, Long senderId) {
         // Check if task exists
         Task existingTask = adminRepository.getTaskById(taskId);
         if (existingTask == null) {
@@ -137,18 +162,39 @@ public class AdminService {
 
         int rows = adminRepository.updateTask(existingTask);
         if (rows > 0) {
-            // Send notification email to assigned employee if exists
-            if (existingTask.getEmployee() != null && existingTask.getEmployee().getEmail() != null && !existingTask.getEmployee().getEmail().isEmpty()) {
-                String employeeEmail = existingTask.getEmployee().getEmail();
-                String subject = "Task Updated";
-                String body = "Your task with ID: " + taskId + " has been updated. Please check the details.";
-                mailerService.sendNotificationEmail(employeeEmail, subject, body);
+            // If task is assigned to an employee, store a notification
+            if (existingTask.getEmployee() != null) {
+                Employee sender = new Employee();
+                sender.setId(senderId);  // Setting the sender's ID from the decoded token
+
+                Employee receiver = existingTask.getEmployee(); // The employee assigned to the task (receiver)
+
+                // Create a new notification
+                Notification notification = new Notification();
+                notification.setMessage("Your task with ID: " + taskId + " has been updated.");
+                notification.setSender(sender);  // Sender is the employee who made the change
+                notification.setReceiver(receiver);  // Receiver is the employee assigned to the task
+                notification.setCreatedAt(LocalDateTime.now());
+                notification.setStatus(Notification.Status.UNREAD);  // Set status to UNREAD
+
+                // Save the notification
+                notificationRepository.saveNotification(notification);
+
+                // Send a notification email to the assigned employee
+                if (receiver.getEmail() != null && !receiver.getEmail().isEmpty()) {
+                    String subject = "Task Updated";
+                    String body = "Your task with ID: " + taskId + " has been updated. Please check the details.";
+                    mailerService.sendNotificationEmail(receiver.getEmail(), subject, body);
+                }
             }
+
             return "Task updated successfully";
         } else {
             throw new RuntimeException("Failed to update task");
         }
     }
+
+
     public List<Map<String, Object>> getAllEmployees() {
         return adminRepository.getAllEmployees();
     }
