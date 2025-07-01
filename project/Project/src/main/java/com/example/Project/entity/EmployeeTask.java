@@ -32,6 +32,9 @@ public class EmployeeTask {
     @Column
     private LocalDateTime completedAt;
 
+    @Column
+    private LocalDateTime startedAt;  // New column for startedAt
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Priority priority = Priority.LOW;
@@ -84,6 +87,14 @@ public class EmployeeTask {
 
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
+    }
+
+    public LocalDateTime getStartedAt() {
+        return startedAt;  // Getter for startedAt
+    }
+
+    public void setStartedAt(LocalDateTime startedAt) {
+        this.startedAt = startedAt;  // Setter for startedAt
     }
 
     public Priority getPriority() {

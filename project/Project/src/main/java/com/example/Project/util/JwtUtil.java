@@ -17,12 +17,13 @@ public class JwtUtil {
     private final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
 
     // Method to generate token
-    public String generateToken(Long id, String name, String email, String role) {
+    public String generateToken(Long id, String name, String email, String role, String jobTitle) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);  // Including employee ID in claims
         claims.put("name", name);
         claims.put("email", email);
         claims.put("role", role);
+        claims.put("job_title", jobTitle);  // Adding job title to the claims
         return doGenerateToken(claims);
     }
 
@@ -52,6 +53,12 @@ public class JwtUtil {
     public Long extractEmployeeId(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return Long.valueOf(claims.get("id").toString());  // Extract employeeId from the claims
+    }
+
+    // Extract job title directly from token
+    public String extractJobTitle(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("job_title", String.class);  // Extract job title from the claims
     }
 
     // Check if the token is expired

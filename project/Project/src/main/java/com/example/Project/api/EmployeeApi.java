@@ -2,6 +2,7 @@ package com.example.Project.api;
 
 import com.example.Project.entity.Employee;
 import com.example.Project.entity.Notification;
+import com.example.Project.entity.Task;
 import com.example.Project.service.EmployeeService;
 import com.example.Project.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import com.example.Project.util.JwtUtil;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/employee")
@@ -141,5 +143,120 @@ public class EmployeeApi {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+
+        // Call the service to handle the forgot password request
+        String response = employeeService.handleForgotPassword(email);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/verifyOtpAndResetPassword")
+    public ResponseEntity<String> verifyOtpAndResetPassword(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        String otp = requestBody.get("otp");
+        String newPassword = requestBody.get("newPassword");
+
+        // Call the service to handle OTP verification and password reset
+        String response = employeeService.verifyOtpAndResetPassword(email, otp, newPassword);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/resetOtp")
+    public ResponseEntity<String> resetOtp(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+
+        // Call the service to handle the OTP reset
+        String response = employeeService.handleForgotPassword(email);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/assignedTasks")
+    public ResponseEntity<List<Task>> getAssignedTasks(@RequestHeader("Authorization") String authHeader) {
+        // Extract employeeId from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Get the list of tasks assigned to the employee
+        List<Task> tasks = employeeService.getAssignedTasks(employeeId);
+
+        if (tasks != null && !tasks.isEmpty()) {
+            return new ResponseEntity<>(tasks, HttpStatus.OK);  // Return tasks if found
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No tasks assigned
+        }
+    }
+
+    @PatchMapping("/updateTaskStatus")
+    public ResponseEntity<String> updateTaskStatus(@RequestHeader("Authorization") String authHeader,
+                                                   @RequestBody Map<String, Object> requestBody) {
+
+        // Extract employeeId from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Get taskId and status from the request body
+        Long taskId = Long.parseLong(requestBody.get("taskId").toString());
+        String status = requestBody.get("status").toString();
+
+        // Call the service to update the task's status and handle the startedAt logic
+        String response = employeeService.updateTaskStatus(employeeId, taskId, status);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/searchTasks")
+    public ResponseEntity<List<Task>> searchTasks(@RequestHeader("Authorization") String authHeader,
+                                                  @RequestParam("keyword") String keyword) {
+
+        // Extract employeeId from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Call the service to search tasks by title
+        List<Task> tasks = employeeService.searchTasksByTitle(employeeId, keyword);
+
+        if (tasks != null && !tasks.isEmpty()) {
+            return new ResponseEntity<>(tasks, HttpStatus.OK);  // Return tasks if found
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No tasks found
+        }
+    }
+
+    @GetMapping("/filterTasksByStatus")
+    public ResponseEntity<List<Task>> filterTasksByStatus(@RequestHeader("Authorization") String authHeader,
+                                                          @RequestParam("status") String status) {
+
+        // Extract employeeId from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Call the service to filter tasks by status
+        List<Task> tasks = employeeService.filterTasksByStatus(employeeId, status);
+
+        if (tasks != null && !tasks.isEmpty()) {
+            return new ResponseEntity<>(tasks, HttpStatus.OK);  // Return tasks if found
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // No tasks found with the given status
+        }
+    }
+
+    @PostMapping("/uploadAttachment")
+    public ResponseEntity<String> uploadAttachment(@RequestHeader("Authorization") String authHeader,
+                                                   @RequestParam("taskId") Long taskId,
+                                                   @RequestParam("file") MultipartFile file) {
+        // Extract employeeId from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Call the service to upload the attachment and associate it with the task
+        String response = employeeService.uploadAttachment(employeeId, taskId, file);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 }

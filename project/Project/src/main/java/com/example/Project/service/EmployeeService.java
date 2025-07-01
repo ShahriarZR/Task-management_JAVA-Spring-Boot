@@ -1,19 +1,28 @@
 package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.entity.EmployeeTask;
 import com.example.Project.entity.Notification;
+import com.example.Project.entity.Task;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.enums.Role;
 import com.example.Project.repository.EmployeeRepository;
 
+import com.example.Project.repository.EmployeeTaskRepository;
+import com.example.Project.repository.TaskRepository;
 import com.example.Project.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EmployeeService {
@@ -22,12 +31,19 @@ public class EmployeeService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailerService mailerService;
     private final JwtUtil jwtUtil;
+    private final TaskRepository taskRepository;
+    private final EmployeeTaskRepository employeeTaskRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository, MailerService mailerService, JwtUtil jwtUtil) {
+    @Value("${file.upload-dir}")  // Inject the value from application.properties
+    private String uploadDir;  // Path to store files
+
+    public EmployeeService(EmployeeRepository employeeRepository, MailerService mailerService, JwtUtil jwtUtil, TaskRepository taskRepository, EmployeeTaskRepository employeeTaskRepository) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.mailerService = mailerService;
         this.jwtUtil = jwtUtil;
+        this.taskRepository = taskRepository;
+        this.employeeTaskRepository = employeeTaskRepository;
     }
 
     public String approveEmployee(Long employeeId, JobTitle jobTitle) {
@@ -142,7 +158,14 @@ public class EmployeeService {
                 response.put("error", "Wait for Admin to approve your account before logging in.");
                 return response;
             }
-            String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail(), employee.getRole().name());
+            String token = jwtUtil.generateToken(
+                    employee.getId(),
+                    employee.getName(),
+                    employee.getEmail(),
+                    employee.getRole().name(),
+                    employee.getJobTitle().name() // Include job title in the token
+            );
+
             response.put("access_token", token);
             return response;
         } catch (Exception e) {
@@ -274,4 +297,164 @@ public class EmployeeService {
 
         return "Password updated successfully.";
     }
+
+    public String handleForgotPassword(String email) {
+        // Step 1: Fetch the employee by email
+        Employee employee = employeeRepository.findByEmail(email);
+
+        if (employee == null) {
+            throw new RuntimeException("Employee with email " + email + " does not exist.");
+        }
+
+        // Step 2: Generate a unique OTP
+        String otp = generateOtp();
+
+        // Step 3: Set the OTP in the employee record (with an expiry time)
+        LocalDateTime otpExpiry = LocalDateTime.now().plusMinutes(10); // OTP valid for 10 minutes
+        employee.setOtp(otp);
+        employee.setOtpExpiry(otpExpiry);
+
+        // Save OTP and expiry in the database
+        employeeRepository.saveEmployee(employee);
+
+        // Step 4: Send OTP to the employee's email
+        String subject = "Password Reset OTP";
+        String body = "Your OTP to reset your password is: " + otp + "\nIt will expire in 10 minutes.";
+
+        mailerService.sendNotificationEmail(employee.getEmail(), subject, body);
+
+        return "OTP sent to your email address.";
+    }
+
+    public String verifyOtpAndResetPassword(String email, String otp, String newPassword) {
+        // Step 1: Fetch the employee by email
+        Employee employee = employeeRepository.findByEmail(email);
+
+        if (employee == null) {
+            throw new RuntimeException("Employee with email " + email + " does not exist.");
+        }
+
+        // Step 2: Check if the OTP matches and is not expired
+        if (employee.getOtp() == null || !employee.getOtp().equals(otp)) {
+            throw new RuntimeException("OTP is incorrect.");
+        }
+
+        if (employee.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP has expired.");
+        }
+
+        // Step 3: Encrypt the new password
+        String encryptedNewPassword = passwordEncoder.encode(newPassword);
+
+        // Step 4: Update the employee's password in the database
+        employee.setPassword(encryptedNewPassword);
+
+        // Clear the OTP after the password reset (for security)
+        employee.setOtp(null);
+        employee.setOtpExpiry(null);
+
+        // Save the updated employee
+        employeeRepository.saveEmployee(employee);
+
+        return "Password has been successfully reset.";
+    }
+
+    public List<Task> getAssignedTasks(Long employeeId) {
+        // Fetch the tasks assigned to the employee from the repository
+        return taskRepository.findTasksByEmployeeId(employeeId);
+    }
+
+    public String updateTaskStatus(Long employeeId, Long taskId, String status) {
+        // Step 1: Check if the employee is assigned to the task
+        EmployeeTask employeeTask = employeeTaskRepository.findByEmployeeIdAndTaskId(employeeId, taskId);
+
+        if (employeeTask == null) {
+            throw new RuntimeException("Employee is not assigned to this task.");
+        }
+
+        // Step 2: Update the task's status
+        Task task = taskRepository.findById(taskId).orElse(null);
+
+        if (task == null) {
+            throw new RuntimeException("Task not found.");
+        }
+
+        // Update status in the Task entity
+        task.setStatus(Task.Status.valueOf(status));
+        taskRepository.saveStatus(task);  // Save updated task status
+
+        // Step 3: If the status is "IN_PROGRESS" and startedAt is null, set startedAt to now
+        if ("IN_PROGRESS".equals(status) && employeeTask.getStartedAt() == null) {
+            employeeTask.setStartedAt(LocalDateTime.now());  // Set current time as startedAt
+            employeeTaskRepository.startedAt(employeeTask);  // Save updated startedAt in EmployeeTask
+        }
+        if ("COMPLETED".equals(status) && employeeTask.getCompletedAt() == null) {
+            employeeTask.setCompletedAt(LocalDateTime.now());  // Set current time as startedAt
+            employeeTaskRepository.completedAt(employeeTask);  // Save updated startedAt in EmployeeTask
+        }
+
+        return "Task status updated successfully.";
+    }
+
+    public List<Task> searchTasksByTitle(Long employeeId, String keyword) {
+        // Call the repository to search for tasks by title
+        return taskRepository.findTasksByTitle(employeeId, "%" + keyword + "%");  // Using LIKE query
+    }
+
+    public List<Task> filterTasksByStatus(Long employeeId, String status) {
+        // Validate the status input
+        try {
+            Task.Status taskStatus = Task.Status.valueOf(status.toUpperCase());  // Ensure status is valid
+
+            // Call the repository to filter tasks by status
+            return taskRepository.findTasksByStatus(employeeId, taskStatus);
+
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid status provided.");
+        }
+    }
+
+    public String uploadAttachment(Long employeeId, Long taskId, MultipartFile file) {
+        // Step 1: Validate the task and employee
+        Task task = taskRepository.findById(taskId).orElse(null);
+
+        if (task == null) {
+            throw new RuntimeException("Task not found.");
+        }
+
+        Employee taskEmployee = task.getEmployee();
+        if (taskEmployee == null || !employeeId.equals(taskEmployee.getId())) {
+            throw new RuntimeException("Employee is not assigned to this task.");
+        }
+
+        // Step 2: Save the file to the server or cloud storage
+        String savedFileName = saveFile(file);  // Generate the saved file name
+        String originalFileName = file.getOriginalFilename();  // Use original file name
+
+        // Step 3: Update the task's attachment with the original file name (overwriting the existing attachment reference)
+        task.setAttachment(originalFileName);  // Store the original file name in the 'attachment' column
+
+        // Save the task with the updated attachment field
+        taskRepository.saveAttachments(task);
+
+        return "Attachment uploaded successfully.";
+    }
+
+
+    // Method to save the file locally
+    private String saveFile(MultipartFile file) {
+        try {
+            // Generate a unique file name to avoid overwriting existing files
+            String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, fileName);  // Make sure `uploadDir` exists
+
+            // Save the file to the specified directory
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return fileName;  // Return the saved file name (this is only for storage on the server)
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file.", e);
+        }
+    }
+
 }

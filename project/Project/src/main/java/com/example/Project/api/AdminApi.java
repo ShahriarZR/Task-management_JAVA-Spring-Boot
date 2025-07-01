@@ -5,6 +5,7 @@ import com.example.Project.entity.Task;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.service.AdminService;
 import com.example.Project.service.EmployeeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ public class AdminApi {
 
     private final AdminService adminService;
     private final EmployeeService employeeService;
+    @Autowired
     private final JwtUtil jwtUtil;
 
     public AdminApi(AdminService adminService, EmployeeService employeeService, JwtUtil jwtUtil) {
@@ -180,6 +182,18 @@ public class AdminApi {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Internal server error
         }
     }
+
+    @GetMapping("/employee/{employeeId}/performance")
+    public ResponseEntity<String> getEmployeePerformance(@PathVariable Long employeeId) {
+        try {
+            double performancePercentage = adminService.getEmployeePerformance(employeeId);
+            return ResponseEntity.ok("Employee Performance: " + performancePercentage + "%");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error calculating performance: " + e.getMessage());
+        }
+    }
+
+
 
 
 

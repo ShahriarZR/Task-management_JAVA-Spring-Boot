@@ -1,13 +1,12 @@
 package com.example.Project.service;
 
 import com.example.Project.entity.Employee;
+import com.example.Project.entity.EmployeeTask;
 import com.example.Project.entity.Notification;
 import com.example.Project.entity.Task;
 import com.example.Project.entity.Task.Status;
 import com.example.Project.enums.JobTitle;
-import com.example.Project.repository.AdminRepository;
-import com.example.Project.repository.EmployeeRepository;
-import com.example.Project.repository.NotificationRepository;
+import com.example.Project.repository.*;
 import com.example.Project.service.MailerService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +22,18 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final MailerService mailerService;
     private final NotificationRepository notificationRepository;
+    private final EmployeeTaskRepository employeeTaskRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
-    public AdminService(AdminRepository adminRepository, EmployeeRepository employeeRepository, MailerService mailerService, NotificationRepository notificationRepository) {
+    public AdminService(AdminRepository adminRepository, EmployeeRepository employeeRepository, MailerService mailerService, NotificationRepository notificationRepository, EmployeeTaskRepository employeeTaskRepository, TaskRepository taskRepository) {
         this.adminRepository = adminRepository;
         this.employeeRepository = employeeRepository;
         this.mailerService = mailerService;
         this.notificationRepository = notificationRepository;
 
+        this.employeeTaskRepository = employeeTaskRepository;
+        this.taskRepository = taskRepository;
     }
 
     public static class TaskNotFoundException extends RuntimeException {
@@ -285,6 +288,39 @@ public class AdminService {
             return "Failed to approve employee with ID " + employeeId;
         }
     }
+
+
+    public double getEmployeePerformance(Long employeeId) {
+        // Retrieve all tasks assigned to the employee
+        List<Task> tasks = taskRepository.findTasksByEmployeeId(employeeId);
+
+        // Calculate the total number of tasks and those completed on time
+        int totalCompleted = 0;
+        int onTimeCompleted = 0;
+
+        for (Task task : tasks) {
+            // Find the corresponding EmployeeTask for the employee and task
+            EmployeeTask employeeTask = employeeTaskRepository.findByTaskIdAndEmployeeId(task.getId(), employeeId)
+                    .orElse(null); // If no matching EmployeeTask, skip this task
+
+            if (employeeTask != null && employeeTask.getCompletedAt() != null) {  // Check if the task is completed
+                totalCompleted++;
+
+                // Check if the task was completed on time (completed before due date)
+                if (employeeTask.getCompletedAt() != null && employeeTask.getCompletedAt().isBefore(task.getDueDate())) {
+                    onTimeCompleted++;
+                }
+            }
+        }
+
+        if (totalCompleted == 0) {
+            return 0.0; // If no tasks are completed, performance is 0%
+        }
+
+        // Calculate the percentage of tasks completed on time
+        return ((double) onTimeCompleted / totalCompleted) * 100;
+    }
+
 
 
 }

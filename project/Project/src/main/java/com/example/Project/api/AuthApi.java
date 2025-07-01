@@ -37,4 +37,6 @@ public class AuthApi {
             return new ResponseEntity<>(Map.of("error", "Login failed: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR); // Error
         }
     }
+
+
 }
