@@ -2,6 +2,7 @@ package com.example.Project.api;
 
 import com.example.Project.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,13 +24,17 @@ public class AuthApi {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("email");
-        String password = loginRequest.get("password");
-        Map<String, String> response = employeeService.login(email, password);
-        if (response.containsKey("error")) {
-            return ResponseEntity.status(401).body(response);
-        } else {
-            return ResponseEntity.ok(response);
+        try {
+            String email = loginRequest.get("email");
+            String password = loginRequest.get("password");
+            Map<String, String> response = employeeService.login(email, password);
+
+            if (response.containsKey("error")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response); // Unauthorized
+            }
+            return ResponseEntity.ok(response); // Success
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", "Login failed: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR); // Error
         }
     }
 }

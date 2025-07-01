@@ -5,6 +5,7 @@ import com.example.Project.entity.Notification;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class EmployeeRepository {
@@ -44,57 +46,72 @@ public class EmployeeRepository {
     }
 
     public int saveEmployee(Employee employee) {
-        String sql = "INSERT INTO employee (name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified, approved_by_admin) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        return jdbcTemplate.update(sql,
-                employee.getName(),
-                employee.getEmail(),
-                employee.getJobTitle() != null ? employee.getJobTitle().name() : null,
-                employee.getPhone(),
-                employee.getAddress(),
-                employee.getRole() != null ? employee.getRole().name() : null,
-                employee.getPassword(),
-                employee.getOtp(),
-                employee.getLastOtpResend(),
-                employee.getOtpExpiry(),
-                employee.isEmailVerified(),
-                employee.isOtpVerified(),
-                employee.isApprovedByAdmin()  // Insert the approvedByAdmin value
-        );
+        try {
+            if (employee.getId() != null) {
+                // If employee exists (id is not null), update the employee data
+                String sql = "UPDATE employee SET name = ?, email = ?, job_title = ?, phone = ?, address = ?, role = ?, password = ?, otp = ?, last_otp_resend = ?, otp_expiry = ?, is_email_verified = ?, is_otp_verified = ?, approved_by_admin = ? WHERE id = ?";
+                return jdbcTemplate.update(sql,
+                        employee.getName(),
+                        employee.getEmail(),
+                        employee.getJobTitle() != null ? employee.getJobTitle().name() : null,
+                        employee.getPhone(),
+                        employee.getAddress(),
+                        employee.getRole() != null ? employee.getRole().name() : null,
+                        employee.getPassword(),
+                        employee.getOtp(),
+                        employee.getLastOtpResend(),
+                        employee.getOtpExpiry(),
+                        employee.isEmailVerified(),
+                        employee.isOtpVerified(),
+                        employee.isApprovedByAdmin(),
+                        employee.getId());
+            } else {
+                // If employee doesn't have an id, insert as a new employee
+                String sql = "INSERT INTO employee (name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified, approved_by_admin) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                return jdbcTemplate.update(sql,
+                        employee.getName(),
+                        employee.getEmail(),
+                        employee.getJobTitle() != null ? employee.getJobTitle().name() : null,
+                        employee.getPhone(),
+                        employee.getAddress(),
+                        employee.getRole() != null ? employee.getRole().name() : null,
+                        employee.getPassword(),
+                        employee.getOtp(),
+                        employee.getLastOtpResend(),
+                        employee.getOtpExpiry(),
+                        employee.isEmailVerified(),
+                        employee.isOtpVerified(),
+                        employee.isApprovedByAdmin());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save employee: " + e.getMessage(), e);
+        }
     }
 
 
+
     public Employee findByEmail(String email) {
-        String sql = "SELECT id, name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified, approved_by_admin FROM employee WHERE email = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{email}, (rs, rowNum) -> {
-            Employee employee = new Employee();
-            employee.setId(rs.getLong("id"));
-            employee.setName(rs.getString("name"));
-            employee.setEmail(rs.getString("email"));
-            String jobTitleStr = rs.getString("job_title");
-            if (jobTitleStr != null) {
-                employee.setJobTitle(JobTitle.valueOf(jobTitleStr));
-            }
+        try {
+            String sql = "SELECT id, name, email, job_title, phone, address, role, password, otp, last_otp_resend, otp_expiry, is_email_verified, is_otp_verified, approved_by_admin FROM employee WHERE email = ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{email}, new EmployeeRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;  // Employee not found, return null
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching employee by email: " + e.getMessage(), e);
+        }
+    }
 
-            employee.setPhone(rs.getString("phone"));
-            employee.setAddress(rs.getString("address"));
-            employee.setRole(Role.valueOf(rs.getString("role")));
-            employee.setPassword(rs.getString("password"));
-            employee.setOtp(rs.getString("otp"));
-
-            // Handle possible null value for lastOtpResend and otpExpiry
-            Timestamp lastOtpResendTimestamp = rs.getTimestamp("last_otp_resend");
-            employee.setLastOtpResend(lastOtpResendTimestamp != null ? lastOtpResendTimestamp.toLocalDateTime() : null);
-
-            Timestamp otpExpiryTimestamp = rs.getTimestamp("otp_expiry");
-            employee.setOtpExpiry(otpExpiryTimestamp != null ? otpExpiryTimestamp.toLocalDateTime() : null);
-
-            employee.setEmailVerified(rs.getBoolean("is_email_verified"));
-            employee.setOtpVerified(rs.getBoolean("is_otp_verified"));
-            employee.setApprovedByAdmin(rs.getBoolean("approved_by_admin"));
-            return employee;
-        });
+    public Optional<Employee> findById(Long id) {
+        String sql = "SELECT * FROM employee WHERE id = ?";
+        try {
+            Employee employee = jdbcTemplate.queryForObject(sql, new Object[]{id}, new EmployeeRowMapper());
+            return Optional.ofNullable(employee);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty(); // Return empty Optional when no employee is found
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching employee by ID: " + e.getMessage(), e);
+        }
     }
 
 
@@ -129,6 +146,23 @@ public class EmployeeRepository {
                 notification.getStatus().name());
     }
 
+    private static class BasicEmployeeRowMapper implements RowMapper<Employee> {
+        @Override
+        public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Employee employee = new Employee();
+            employee.setId(rs.getLong("id"));
+            employee.setName(rs.getString("name"));
+            employee.setEmail(rs.getString("email"));
+            String jobTitleStr = rs.getString("job_title");
+            if (jobTitleStr != null) {
+                employee.setJobTitle(JobTitle.valueOf(jobTitleStr));
+            }
+            employee.setPhone(rs.getString("phone"));
+            employee.setAddress(rs.getString("address"));
+            return employee;
+        }
+    }
+
 
     private static class EmployeeRowMapper implements RowMapper<Employee> {
         @Override
@@ -149,6 +183,7 @@ public class EmployeeRepository {
             employee.setLastOtpResend(rs.getTimestamp("last_otp_resend") != null ? rs.getTimestamp("last_otp_resend").toLocalDateTime() : null);
             employee.setEmailVerified(rs.getBoolean("is_email_verified"));
             employee.setOtpVerified(rs.getBoolean("is_otp_verified"));
+            employee.setApprovedByAdmin(rs.getBoolean("approved_by_admin"));
             String roleStr = rs.getString("role");
             if (roleStr != null) {
                 employee.setRole(com.example.Project.enums.Role.valueOf(roleStr));
@@ -156,4 +191,29 @@ public class EmployeeRepository {
             return employee;
         }
     }
+
+    public int deleteEmployeeById(Long employeeId) {
+        try {
+            String sql = "DELETE FROM employee WHERE id = ?";
+            return jdbcTemplate.update(sql, employeeId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting employee: " + e.getMessage(), e);
+        }
+    }
+
+    public int setEmployeeIdToNullTask(Long employeeId) {
+        String sql = "UPDATE task SET employee_id = NULL WHERE employee_id = ?";
+        return jdbcTemplate.update(sql, employeeId);
+    }
+
+    public int deleteEmployeeTask(Long employeeId) {
+        String sql = "DELETE FROM employee_task WHERE employee_id = ?";
+        return jdbcTemplate.update(sql, employeeId);
+    }
+
+    public int deleteEmployeeNotification(Long employeeId) {
+        String sql = "DELETE FROM notification WHERE receiver_id = ?";
+        return jdbcTemplate.update(sql, employeeId);
+    }
+
 }

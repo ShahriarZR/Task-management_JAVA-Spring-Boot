@@ -32,18 +32,29 @@ public class EmployeeApi {
 
     @PostMapping("/registration")
     public ResponseEntity<String> registerEmployee(@RequestBody Employee employee) {
-        String response = employeeService.saveEmployee(employee);
-        
-        return ResponseEntity.ok(response);
+        try {
+            String response = employeeService.saveEmployee(employee);
+            return new ResponseEntity<>(response, HttpStatus.OK); // Success
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to register employee: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // Error
+        }
     }
-
 
     @PostMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String otp = request.get("otp");
-        String response = employeeService.verifyEmail(email, otp);
-        return ResponseEntity.ok(response);
+        try {
+            String email = request.get("email");
+            String otp = request.get("otp");
+            String response = employeeService.verifyEmail(email, otp);
+            if (response.contains("not found")) {
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // Employee not found
+            } else if (response.contains("expired") || response.contains("incorrect")) {
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // Invalid OTP
+            }
+            return new ResponseEntity<>(response, HttpStatus.OK); // Success
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to verify email: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // Error
+        }
     }
 
     @GetMapping("/notifications")
@@ -65,13 +76,69 @@ public class EmployeeApi {
             return new ResponseEntity<>(notifications, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             // Invalid JWT token or employee ID extraction failure
-            e.printStackTrace();  // Log the error for debugging
             return new ResponseEntity<>(List.of(), HttpStatus.BAD_REQUEST); // Return 400
         } catch (Exception e) {
             // Catch all other exceptions
-            e.printStackTrace();  // Log the error for debugging
             return new ResponseEntity<>(List.of(), HttpStatus.INTERNAL_SERVER_ERROR); // Return 500
         }
+    }
+
+    @PatchMapping("/updateInfo")
+    public ResponseEntity<String> updateEmpData(@RequestBody Map<String, Object> data, @RequestHeader("Authorization") String authHeader) {
+        // Extract employee id from token (similarly as in the TypeScript code)
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        String response = employeeService.updateEmpData(employeeId, data);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<Map<String, Object>> getEmployeeDetails(@RequestHeader("Authorization") String authHeader) {
+        // Extract employee id from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Fetch the employee details from the service
+        Map<String, Object> employeeDetails = employeeService.getEmployeeDetails(employeeId);
+
+        if (employeeDetails != null) {
+            return new ResponseEntity<>(employeeDetails, HttpStatus.OK);  // Employee found
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Employee not found
+        }
+    }
+
+    @DeleteMapping("/deleteEmployee")
+    public ResponseEntity<String> deleteEmployee(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);
+        try {
+            String response = employeeService.deleteEmployee(employeeId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST); // Return error message
+        }
+    }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> requestBody) {
+
+        // Extract employee ID from the token
+        String token = authHeader.substring(7);  // "Bearer <token>"
+        Long employeeId = jwtUtil.extractEmployeeId(token);  // Extract employeeId from the token
+
+        // Extract old and new password from the request body
+        String oldPassword = requestBody.get("password");
+        String newPassword = requestBody.get("newPassword");
+
+        // Call the service to change the password
+        String response = employeeService.changePassword(employeeId, oldPassword, newPassword);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

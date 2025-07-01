@@ -43,6 +43,7 @@ public class AdminService {
         LocalDateTime now = LocalDateTime.now();
         task.setCreatedAt(now);
         task.setUpdatedAt(now);
+
         if (task.getStatus() == null) {
             task.setStatus(Status.PENDING);
         }
@@ -52,12 +53,13 @@ public class AdminService {
             if (result > 0) {
                 return "Task created successfully";
             } else {
-                throw new IllegalArgumentException("Task already exists");
+                throw new IllegalArgumentException("Task with the same title and due date already exists.");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create task", e);
+            throw new RuntimeException("Failed to create task due to a database error: " + e.getMessage(), e);
         }
     }
+
 
     public List<Task> getAllTasks() {
         return adminRepository.getAllTasks();
@@ -113,7 +115,7 @@ public class AdminService {
 
             return "Employee assigned to task successfully and notification sent.";
         } else {
-            return "Failed to assign employee to task";
+            throw new RuntimeException("Failed to assign employee to task.");
         }
     }
 
@@ -257,7 +259,7 @@ public class AdminService {
         if (rowsAffected > 0) {
             return "Employee with ID " + employeeId + " deleted successfully";
         } else {
-            return "Failed to delete employee with ID " + employeeId;
+            throw new RuntimeException("Failed to delete employee with ID " + employeeId);
         }
     }
 

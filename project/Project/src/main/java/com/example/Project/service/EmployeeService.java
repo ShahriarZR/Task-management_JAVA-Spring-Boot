@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class EmployeeService {
@@ -64,85 +65,89 @@ public class EmployeeService {
     }
 
     public String saveEmployee(Employee employee) {
-        String otp = generateOtp();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiry = now.plusMinutes(10);
+        try {
+            String otp = generateOtp();
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime expiry = now.plusMinutes(10);
 
-        employee.setOtp(otp);
-        employee.setLastOtpResend(now);
-        employee.setOtpExpiry(expiry);
-        employee.setEmailVerified(false);
-        employee.setOtpVerified(false);
-        employee.setRole(Role.USER);
-        employee.setApprovedByAdmin(false);  // Ensure new employees are not approved by default
-        // Encode the password before saving
-        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+            employee.setOtp(otp);
+            employee.setLastOtpResend(now);
+            employee.setOtpExpiry(expiry);
+            employee.setEmailVerified(false);
+            employee.setOtpVerified(false);
+            employee.setRole(Role.USER);
+            employee.setApprovedByAdmin(false);  // Ensure new employees are not approved by default
+            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 
-        int rows = employeeRepository.saveEmployee(employee);
-        if (rows > 0) {
-            mailerService.sendOtpEmail(employee.getEmail(), otp);
-            return "OTP sent to your email. Please verify to complete registration.";
-        } else {
-            return "Failed to register employee";
+            int rows = employeeRepository.saveEmployee(employee);
+            if (rows > 0) {
+                mailerService.sendOtpEmail(employee.getEmail(), otp);
+                return "OTP sent to your email. Please verify to complete registration.";
+            } else {
+                throw new IllegalArgumentException("Employee registration failed due to database error.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error saving employee: " + e.getMessage(), e);
+        }
+    }
+
+    public String verifyEmail(String email, String otp) {
+        try {
+            Employee employee = employeeRepository.findByEmail(email);
+            if (employee == null) {
+                throw new IllegalArgumentException("User not found.");
+            }
+            if (employee.isEmailVerified()) {
+                throw new IllegalStateException("Email already verified.");
+            }
+            System.out.println(employee.getOtpExpiry());
+            if (employee.getOtp() == null || employee.getOtpExpiry() == null || LocalDateTime.now().isAfter(employee.getOtpExpiry())) {
+                throw new IllegalArgumentException("OTP expired.");
+            }
+            if (!employee.getOtp().equals(otp)) {
+                throw new IllegalArgumentException("Incorrect OTP.");
+            }
+
+            // Set email verified and clear OTP related fields
+            employee.setEmailVerified(true);
+            employee.setLastOtpResend(null);
+            employee.setOtp(null);
+            employee.setOtpExpiry(null);
+            employee.setApprovedByAdmin(false);
+
+            employeeRepository.updateEmployeeVerification(employee);
+            return "Email verified successfully. Waiting for admin approval.";
+        } catch (Exception e) {
+            throw new RuntimeException("Error verifying email: " + e.getMessage(), e);
         }
     }
 
     public Map<String, String> login(String email, String password) {
-        Employee employee = employeeRepository.findByEmail(email);
-        Map<String, String> response = new HashMap<>();
-        if (employee == null) {
-            response.put("error", "Invalid Username");
+        try {
+            Employee employee = employeeRepository.findByEmail(email);
+            Map<String, String> response = new HashMap<>();
+            if (employee == null) {
+                response.put("error", "Invalid Username");
+                return response;
+            }
+            if (!passwordEncoder.matches(password, employee.getPassword())) {
+                response.put("error", "Wrong Password");
+                return response;
+            }
+            if (!employee.isEmailVerified()) {
+                response.put("error", "Please verify your email before logging in.");
+                return response;
+            }
+            if (!employee.isApprovedByAdmin()) {
+                response.put("error", "Wait for Admin to approve your account before logging in.");
+                return response;
+            }
+            String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail(), employee.getRole().name());
+            response.put("access_token", token);
             return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Error logging in: " + e.getMessage(), e);
         }
-        if (!passwordEncoder.matches(password, employee.getPassword())) {
-            response.put("error", "Wrong Password");
-            return response;
-        }
-        if (!employee.isEmailVerified()) {
-            response.put("error", "Please verify your email before logging in");
-            return response;
-        }
-        System.out.println(employee.isApprovedByAdmin());
-        if (!employee.isApprovedByAdmin()) {
-            response.put("error", "Wait for Admin to approve your account before logging in");
-            return response;
-        }
-        String token = jwtUtil.generateToken(employee.getId(), employee.getName(), employee.getEmail(), employee.getRole().name());
-        response.put("access_token", token);
-        return response;
-    }
-
-    public String verifyEmail(String email, String otp) {
-        Employee employee = employeeRepository.findByEmail(email);
-        if (employee == null) {
-            return "User not found";
-        }
-        if (employee.isEmailVerified()) {
-            return "Email already verified";
-        }
-        if (employee.getOtp() == null || employee.getOtpExpiry() == null || LocalDateTime.now().isAfter(employee.getOtpExpiry())) {
-            return "OTP expired";
-        }
-        if (!employee.getOtp().equals(otp)) {
-            return "Incorrect OTP";
-        }
-
-        // Set email verified and clear OTP related fields
-        employee.setEmailVerified(true);
-        employee.setLastOtpResend(null);
-        employee.setOtp(null);
-        employee.setOtpExpiry(null);
-        employee.setApprovedByAdmin(false);  // Ensure it is set to false during the email verification process
-
-        // Update employee record in the database
-        employeeRepository.updateEmployeeVerification(employee);
-
-        // Re-fetch the employee to ensure the updated values
-        employee = employeeRepository.findByEmail(email);
-
-        // Now the approvedByAdmin value should be up-to-date
-
-        return "Email verified successfully. Waiting for admin approval. You will receive an email when approved.";
     }
 
     public List<Map<String, Object>> getUnapprovedEmployees() {
@@ -171,4 +176,102 @@ public class EmployeeService {
         }
     }
 
+    public String updateEmpData(Long employeeId, Map<String, Object> data) {
+        // Fetch the employee by ID
+        Employee existingEmployee = employeeRepository.findById(employeeId).orElse(null);
+        if (existingEmployee == null) {
+            throw new RuntimeException("Employee with ID " + employeeId + " does not exist.");
+        }
+
+        // Update only non-null fields
+        if (data.containsKey("name") && data.get("name") != null) {
+            existingEmployee.setName((String) data.get("name"));
+        }
+        if (data.containsKey("email") && data.get("email") != null) {
+            existingEmployee.setEmail((String) data.get("email"));
+        }
+        if (data.containsKey("phone") && data.get("phone") != null) {
+            existingEmployee.setPhone((String) data.get("phone"));
+        }
+        if (data.containsKey("address") && data.get("address") != null) {
+            existingEmployee.setAddress((String) data.get("address"));
+        }
+        if (data.containsKey("jobTitle") && data.get("jobTitle") != null) {
+            throw new RuntimeException("You cannot update your job title. Please contact your administrator for assistance.");
+        }
+
+        // Save the updated employee data
+        employeeRepository.saveEmployee(existingEmployee);
+
+        return "Employee data updated successfully.";
+    }
+
+    public String deleteEmployee(Long employeeId) {
+        // Check if the employee exists
+        Optional<Employee> existingEmployee = employeeRepository.findById(employeeId);
+        if (!existingEmployee.isPresent()) {
+            throw new RuntimeException("Employee with ID " + employeeId + " does not exist.");
+        }
+
+        int updatedTasks = employeeRepository.setEmployeeIdToNullTask(employeeId);
+        int updatedEmployeeTasks = employeeRepository.deleteEmployeeTask(employeeId);
+        int updatedNotifications = employeeRepository.deleteEmployeeNotification(employeeId);
+
+        // Delete the employee by ID
+        int rowsAffected = employeeRepository.deleteEmployeeById(employeeId);
+        if (rowsAffected > 0) {
+            return "Employee with ID " + employeeId + " has been deleted successfully.";
+        } else {
+            throw new RuntimeException("Failed to delete employee with ID " + employeeId);
+        }
+    }
+
+    public Map<String, Object> getEmployeeDetails(Long employeeId) {
+        // Fetch the employee by ID
+        Optional<Employee> employeeOptional = employeeRepository.findById(employeeId);
+
+        if (employeeOptional.isPresent()) {
+            Employee employee = employeeOptional.get();
+
+            // Create a map to store the filtered employee details
+            Map<String, Object> employeeDetails = new HashMap<>();
+
+            // Only add the fields we want to include in the response
+            employeeDetails.put("id", employee.getId());
+            employeeDetails.put("name", employee.getName());
+            employeeDetails.put("email", employee.getEmail());
+            employeeDetails.put("jobTitle", employee.getJobTitle().name()); // Assuming jobTitle is an enum
+            employeeDetails.put("phone", employee.getPhone());
+            employeeDetails.put("address", employee.getAddress());
+
+            // Return the filtered map
+            return employeeDetails;
+        } else {
+            return null;  // If employee is not found, return null
+        }
+    }
+
+
+    public String changePassword(Long employeeId, String oldPassword, String newPassword) {
+        // Fetch the employee by ID
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+
+        if (employee == null) {
+            throw new RuntimeException("Employee with ID " + employeeId + " does not exist.");
+        }
+
+        // Check if the old password matches the stored password
+        if (!passwordEncoder.matches(oldPassword, employee.getPassword())) {
+            throw new RuntimeException("Old password is incorrect.");
+        }
+
+        // Encrypt the new password
+        String encryptedNewPassword = passwordEncoder.encode(newPassword);
+
+        // Update the employee password
+        employee.setPassword(encryptedNewPassword);
+        employeeRepository.saveEmployee(employee);
+
+        return "Password updated successfully.";
+    }
 }
