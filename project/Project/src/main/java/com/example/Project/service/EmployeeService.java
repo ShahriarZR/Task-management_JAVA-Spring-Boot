@@ -185,28 +185,6 @@ public class EmployeeService {
         return employeeRepository.getUnapprovedEmployees();  // Call the repository method to fetch unapproved employees
     }
 
-    public String sendNotification(Long senderId, Long receiverId, String message) {
-        // Get the sender and receiver Employee objects (assuming they are retrieved from the database)
-        Employee sender = new Employee();  // Fetch sender from DB based on senderId
-        sender.setId(senderId);
-        Employee receiver = new Employee();  // Fetch receiver from DB based on receiverId
-        receiver.setId(receiverId);
-
-        Notification notification = new Notification();
-        notification.setSender(sender);
-        notification.setReceiver(receiver);
-        notification.setMessage(message);
-        notification.setCreatedAt(LocalDateTime.now());
-        notification.setStatus(Notification.Status.UNREAD);  // Set status to UNREAD by default
-
-        int rowsAffected = employeeRepository.sendNotification(notification);
-        if (rowsAffected > 0) {
-            return "Notification sent successfully.";
-        } else {
-            return "Failed to send notification.";
-        }
-    }
-
     public String updateEmpData(Long employeeId, Map<String, Object> data) {
         // Fetch the employee by ID
         Employee existingEmployee = employeeRepository.findById(employeeId).orElse(null);
@@ -407,22 +385,48 @@ public class EmployeeService {
             throw new RuntimeException("Task not found.");
         }
 
-        // Update status in the Task entity
-        task.setStatus(Task.Status.valueOf(status));
-        taskRepository.saveStatus(task);  // Save updated task status
+        // Step 3: Handle status updates based on the given status
+        if ("IN_PROGRESS".equals(status)) {
+            // If status is "IN_PROGRESS", check if the task has started. If not, set the startedAt timestamp
+            if (employeeTask.getStartedAt() == null) {
+                employeeTask.setStartedAt(LocalDateTime.now());  // Set current time as startedAt
+                employeeTaskRepository.startedAt(employeeTask);  // Save updated startedAt in EmployeeTask
+            } else {
+                throw new RuntimeException("Task is already in progress.");
+            }
+        } else if ("COMPLETED".equals(status)) {
+            // If status is "COMPLETED", check if the task was started and is not already completed
+            if (employeeTask.getStartedAt() == null) {
+                throw new RuntimeException("Task must be in progress before it can be completed.");
+            }
 
-        // Step 3: If the status is "IN_PROGRESS" and startedAt is null, set startedAt to now
-        if ("IN_PROGRESS".equals(status) && employeeTask.getStartedAt() == null) {
-            employeeTask.setStartedAt(LocalDateTime.now());  // Set current time as startedAt
-            employeeTaskRepository.startedAt(employeeTask);  // Save updated startedAt in EmployeeTask
+            if (employeeTask.getCompletedAt() != null) {
+                throw new RuntimeException("Task is already completed.");
+            }
+
+            // Set the completedAt timestamp to current time
+            employeeTask.setCompletedAt(LocalDateTime.now());
+            employeeTaskRepository.completedAt(employeeTask);  // Save updated completedAt in EmployeeTask
+        } else if ("PENDING".equals(status)) {
+            // If status is "PENDING", we can allow it only if the task is not already completed
+            if (employeeTask.getCompletedAt() != null) {
+                throw new RuntimeException("Cannot set task to PENDING as it is already completed.");
+            }
+
+            // Set the task to pending (no changes required on employeeTask for this)
+            task.setStatus(Task.Status.PENDING);
+            taskRepository.saveStatus(task);  // Save updated task status
+        } else {
+            throw new RuntimeException("Invalid task status provided.");
         }
-        if ("COMPLETED".equals(status) && employeeTask.getCompletedAt() == null) {
-            employeeTask.setCompletedAt(LocalDateTime.now());  // Set current time as startedAt
-            employeeTaskRepository.completedAt(employeeTask);  // Save updated startedAt in EmployeeTask
-        }
+
+        // Step 4: Save the updated task status
+        task.setStatus(Task.Status.valueOf(status));
+        taskRepository.saveStatus(task);  // Save the updated task status in the task repository
 
         return "Task status updated successfully.";
     }
+
 
     public List<Task> searchTasksByTitle(Long employeeId, String keyword) {
         // Call the repository to search for tasks by title
