@@ -79,6 +79,38 @@ public class ManagerApi {
         }
     }
 
+    @GetMapping("/myTeams")
+    public ResponseEntity<?> getTeamsByManager(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract manager ID from the JWT token
+            String token = authHeader.substring(7);  // "Bearer <token>"
+            Long managerId = jwtUtil.extractEmployeeId(token);  // Extract manager ID from the token
+
+            // Fetch the teams managed by this manager
+            return ResponseEntity.ok(teamService.getTeamsByManagerId(managerId));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching teams: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/teams/{teamId}")
+    public ResponseEntity<String> deleteTeam(@RequestHeader("Authorization") String authHeader, @PathVariable Long teamId) {
+        try {
+            // Extract the token from the Authorization header
+            String token = authHeader.substring(7);  // "Bearer <token>"
+
+            // Extract manager ID from the token
+            Long managerId = jwtUtil.extractEmployeeId(token);
+
+            // Call the service method to delete the team
+            teamService.deleteTeam(teamId, managerId);
+
+            return ResponseEntity.ok("Team deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error deleting team: " + e.getMessage());
+        }
+    }
+
 
 }
 

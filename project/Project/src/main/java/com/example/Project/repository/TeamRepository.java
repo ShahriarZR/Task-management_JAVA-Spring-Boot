@@ -113,12 +113,69 @@ public class TeamRepository {
     // Find all teams for a given Manager (assigned to the team)
     public List<Team> findByManagerId(Long managerId) {
         String sql = "SELECT * FROM team WHERE manager_id = ?";
-        return jdbcTemplate.query(sql, new Object[]{managerId}, new BeanPropertyRowMapper<>(Team.class));
+
+        List<Team> teams = jdbcTemplate.query(sql, new Object[]{managerId}, new BeanPropertyRowMapper<>(Team.class));
+
+        // For each team, fetch the team members
+        for (Team team : teams) {
+            String memberSql = "SELECT e.id, e.name FROM employee e " +
+                    "JOIN team_members tm ON e.id = tm.employee_id " +
+                    "WHERE tm.team_id = ?";
+            List<Employee> members = jdbcTemplate.query(memberSql, new Object[]{team.getId()}, (rs, rowNum) -> {
+                Employee employee = new Employee();
+                employee.setId(rs.getLong("id"));
+                employee.setName(rs.getString("name"));
+                return employee;
+            });
+
+            team.setMembers(members);  // Set members for each team
+        }
+
+        return teams;
     }
 
-    // Get all teams in the system
-    public List<Team> findAll() {
-        String sql = "SELECT * FROM team";
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Team.class));
+    // Remove all team members from the team_members join table
+    public void removeTeamMembers(Long teamId) {
+        String sql = "DELETE FROM team_members WHERE team_id = ?";
+        jdbcTemplate.update(sql, teamId);
     }
+
+    // Delete the team from the team table
+    public void delete(Long teamId) {
+        String sql = "DELETE FROM team WHERE id = ?";
+        jdbcTemplate.update(sql, teamId);
+    }
+
+    // New method: Find all teams that an employee belongs to
+    public List<Team> findTeamsByEmployeeId(Long employeeId) {
+        String sql = "SELECT t.* FROM team t " +
+                "JOIN team_members tm ON t.id = tm.team_id " +
+                "WHERE tm.employee_id = ?";
+
+        List<Team> teams = jdbcTemplate.query(sql, new Object[]{employeeId}, new BeanPropertyRowMapper<>(Team.class));
+
+        // For each team, fetch the team members
+        for (Team team : teams) {
+            String memberSql = "SELECT e.id, e.name FROM employee e " +
+                    "JOIN team_members tm ON e.id = tm.employee_id " +
+                    "WHERE tm.team_id = ?";
+            List<Employee> members = jdbcTemplate.query(memberSql, new Object[]{team.getId()}, (rs, rowNum) -> {
+                Employee employee = new Employee();
+                employee.setId(rs.getLong("id"));
+                employee.setName(rs.getString("name"));
+                return employee;
+            });
+
+            team.setMembers(members);
+        }
+
+        return teams;
+    }
+
+    // New method: Remove an employee from a specific team
+    public void removeEmployeeFromTeam(Long teamId, Long employeeId) {
+        String sql = "DELETE FROM team_members WHERE team_id = ? AND employee_id = ?";
+        jdbcTemplate.update(sql, teamId, employeeId);
+    }
+
 }

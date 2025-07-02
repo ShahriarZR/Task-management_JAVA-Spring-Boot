@@ -144,7 +144,7 @@ public class AdminApi {
     public ResponseEntity<String> deleteEmployee(@PathVariable Long employeeId) {
         try {
             // Attempt to delete the employee
-            String response = adminService.deleteEmployee(employeeId);
+            String response = employeeService.deleteEmployee(employeeId);
             if (response.contains("does not exist")) {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // Employee not found
             }

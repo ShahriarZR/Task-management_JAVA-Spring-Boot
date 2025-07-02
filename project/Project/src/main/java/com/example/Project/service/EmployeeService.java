@@ -4,6 +4,7 @@ import com.example.Project.entity.Employee;
 import com.example.Project.entity.EmployeeTask;
 import com.example.Project.entity.Notification;
 import com.example.Project.entity.Task;
+import com.example.Project.entity.Team;
 import com.example.Project.enums.JobTitle;
 import com.example.Project.enums.Role;
 import com.example.Project.repository.EmployeeRepository;
@@ -11,7 +12,11 @@ import com.example.Project.repository.EmployeeRepository;
 import com.example.Project.repository.EmployeeTaskRepository;
 import com.example.Project.repository.TaskRepository;
 import com.example.Project.util.JwtUtil;
+import com.example.Project.service.TeamService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +38,9 @@ public class EmployeeService {
     private final JwtUtil jwtUtil;
     private final TaskRepository taskRepository;
     private final EmployeeTaskRepository employeeTaskRepository;
+
+    @Autowired
+    private TeamService teamService;
 
     @Value("${file.upload-dir}")  // Inject the value from application.properties
     private String uploadDir;  // Path to store files
@@ -236,6 +244,25 @@ public class EmployeeService {
             throw new RuntimeException("Employee with ID " + employeeId + " does not exist.");
         }
 
+        String role = existingEmployee.get().getJobTitle().name();
+
+        // Check if the employee to be deleted is a Manager or HR
+        if (role.equals("MANAGER") || role.equals("HR")) {
+            Employee loggedInEmployee = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new RuntimeException("Logged-in employee not found"));
+
+            // Ensure that the logged-in Manager or HR is not attempting to delete their own record
+            if (loggedInEmployee.getId().equals(employeeId)) {
+                throw new RuntimeException("A manager or HR cannot delete themselves directly.");
+            }
+        }
+
+        // Check if employee exists in any team(s) and remove from those teams first
+        List<Team> teams = teamService.getTeamsByEmployeeId(employeeId);
+        for (Team team : teams) {
+            teamService.removeEmployeeFromTeam(team.getId(), employeeId);
+        }
+
         int updatedTasks = employeeRepository.setEmployeeIdToNullTask(employeeId);
         int updatedEmployeeTasks = employeeRepository.deleteEmployeeTask(employeeId);
         int updatedNotifications = employeeRepository.deleteEmployeeNotification(employeeId);
@@ -247,7 +274,8 @@ public class EmployeeService {
         } else {
             throw new RuntimeException("Failed to delete employee with ID " + employeeId);
         }
-    }
+        }
+
 
     public Map<String, Object> getEmployeeDetails(Long employeeId) {
         // Fetch the employee by ID

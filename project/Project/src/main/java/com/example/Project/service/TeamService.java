@@ -121,10 +121,39 @@ public class TeamService {
                     "Manager added you to team: " + team.getName() + " It has been approved by HR.. Please check the team details.\n\n" +
                     "Best Regards,\nHR Team";
 
-            //mailerService.sendNotificationEmail(member.getEmail(), subject, body);  // Send email
+            mailerService.sendNotificationEmail(member.getEmail(), subject, body);  // Send email
         }
     }
 
+    public List<Team> getTeamsByManagerId(Long managerId) {
+        // Fetch teams where the manager_id matches the managerId
+        return teamRepository.findByManagerId(managerId);
+    }
 
+    public void deleteTeam(Long teamId, Long managerId) {
+        // Fetch the team from the repository using findById to get manager populated
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
 
+        // Check if the logged-in user is the Manager of the team
+        if (team.getManager() == null || !team.getManager().getId().equals(managerId)) {
+            throw new RuntimeException("Only the Manager of the team can delete it");
+        }
+
+        // Remove the team from the team_members join table
+        teamRepository.removeTeamMembers(teamId);
+
+        // Delete the team from the team table
+        teamRepository.delete(teamId);
+    }
+
+    // New method: Get all teams an employee belongs to
+    public List<Team> getTeamsByEmployeeId(Long employeeId) {
+        return teamRepository.findTeamsByEmployeeId(employeeId);
+    }
+
+    // New method: Remove an employee from a specific team
+    public void removeEmployeeFromTeam(Long teamId, Long employeeId) {
+        teamRepository.removeEmployeeFromTeam(teamId, employeeId);
+    }
 }
