@@ -317,6 +317,8 @@ public class AdminService {
             return 0.0; // If no tasks are completed, performance is 0%
         }
 
+        System.out.println(totalCompleted);
+
         // Calculate the percentage of tasks completed on time
         return ((double) onTimeCompleted / totalCompleted) * 100;
     }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/logs")
@@ -25,5 +26,15 @@ public class LogApi {
     public ResponseEntity<List<Log>> getAllLogs() {
         List<Log> logs = logService.getAllLogs();
         return ResponseEntity.ok(logs);
+    }
+
+    @GetMapping("/file")
+    public ResponseEntity<?> getLogFile() {
+        try {
+            List<String> logLines = logService.readLogFile();
+            return ResponseEntity.ok(logLines);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body("Error reading log file: " + e.getMessage());
+        }
     }
 }

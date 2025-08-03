@@ -54,3 +54,239 @@
 2025-06-24 23:43:38 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: john.doe65@example.com, Accessed Method: ProductApi.getAllProducts(), Timestamp: 2025-06-24T23:43:38.5899963
 2025-06-24 23:43:38 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: john.doe65@example.com, Accessed Method: ProductService.getAllProducts(), Timestamp: 2025-06-24T23:43:38.5899963
 2025-06-24 23:43:38 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: john.doe65@example.com, Accessed Method: ProductRepository.showAllProducts(), Timestamp: 2025-06-24T23:43:38.590938
+2025-06-24 23:57:05 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-24 23:57:05 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-06-24 23:57:05 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-24 23:57:05 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-06-24 23:57:05 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-07-01 23:14:47 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-07-01 23:14:47 [main] INFO  c.e.S.SuperShopEnhancedApplication - Starting SuperShopEnhancedApplication using Java 23.0.2 with PID 31000 (C:\Users\Shahriar Zaman\Desktop\IntelliJ IDEA Codes\Main_Project\assignment_2\SuperShop_Enhanced\target\classes started by Shahriar Zaman in C:\Users\Shahriar Zaman\Desktop\IntelliJ IDEA Codes\Main_Project\assignment_2\SuperShop_Enhanced)
+2025-07-01 23:14:47 [main] INFO  c.e.S.SuperShopEnhancedApplication - No active profile set, falling back to 1 default profile: "default"
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.CartRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.InvoiceRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.LogRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.OrderRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.UserRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.WishlistRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 32 ms. Found 0 JDBC repository interfaces.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-01 23:14:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 45 ms. Found 6 JPA repository interfaces.
+2025-07-01 23:14:49 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-01 23:14:49 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-07-01 23:14:49 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-01 23:14:49 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-07-01 23:14:49 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-01 23:14:49 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1443 ms
+2025-07-01 23:14:49 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-01 23:14:49 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-07-01 23:14:49 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-01 23:14:49 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-01 23:14:49 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-07-01 23:14:49 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1e194966
+2025-07-01 23:14:49 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-07-01 23:14:50 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-07-01 23:14:50 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-01 23:14:51 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 23:14:51 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-07-01 23:14:51 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-07-01 23:14:52 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-07-01 23:14:52 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2025-07-01 23:14:52 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 23:14:52 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-07-01 23:14:52 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-07-01 23:14:52 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-07-01 23:14:52 [main] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2025-07-02 11:06:40 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-07-02 11:06:41 [main] INFO  c.e.S.SuperShopEnhancedApplication - Starting SuperShopEnhancedApplication using Java 23.0.2 with PID 22744 (C:\Users\Shahriar Zaman\Desktop\IntelliJ IDEA Codes\Main_Project\assignment_2\SuperShop_Enhanced\target\classes started by Shahriar Zaman in C:\Users\Shahriar Zaman\Desktop\IntelliJ IDEA Codes\Main_Project\assignment_2\SuperShop_Enhanced)
+2025-07-02 11:06:41 [main] INFO  c.e.S.SuperShopEnhancedApplication - No active profile set, falling back to 1 default profile: "default"
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.CartRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.InvoiceRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.LogRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.OrderRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.UserRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.WishlistRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 78 ms. Found 0 JDBC repository interfaces.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-02 11:06:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 78 ms. Found 6 JPA repository interfaces.
+2025-07-02 11:06:44 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-02 11:06:44 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-07-02 11:06:44 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-02 11:06:44 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-07-02 11:06:44 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-02 11:06:44 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3041 ms
+2025-07-02 11:06:44 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-02 11:06:44 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-07-02 11:06:44 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-02 11:06:45 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-02 11:06:45 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-07-02 11:06:45 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@395eb363
+2025-07-02 11:06:45 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-07-02 11:06:45 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-07-02 11:06:47 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-02 11:06:47 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-02 11:06:48 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-07-02 11:06:49 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-07-02 11:06:50 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-07-02 11:06:50 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-07-02 11:06:50 [main] INFO  c.e.S.SuperShopEnhancedApplication - Started SuperShopEnhancedApplication in 10.507 seconds (process running for 15.136)
+2025-07-02 11:07:57 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-02 11:07:57 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-07-02 11:07:57 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-07-02 11:07:58 [http-nio-8080-exec-1] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserApi.createUser(..), Timestamp: 2025-07-02T11:07:58.2755872
+2025-07-02 11:07:58 [http-nio-8080-exec-1] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserService.createUser(..), Timestamp: 2025-07-02T11:07:58.2765759
+2025-07-02 11:08:49 [http-nio-8080-exec-3] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserApi.createUser(..), Timestamp: 2025-07-02T11:08:49.9357939
+2025-07-02 11:08:49 [http-nio-8080-exec-3] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserService.createUser(..), Timestamp: 2025-07-02T11:08:49.9357939
+2025-07-02 11:09:12 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: AuthApi.createAuthenticationToken(..), Timestamp: 2025-07-02T11:09:12.9611998
+2025-07-02 11:09:13 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:09:13.2116123
+2025-07-02 11:09:13 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:09:13.2151836
+2025-07-02 11:09:13 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:09:13.7113973
+2025-07-02 11:09:13 [http-nio-8080-exec-4] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:09:13.7138379
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:11:31.2948086
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:11:31.2957041
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: CartApi.addProductToCart(..), Timestamp: 2025-07-02T11:11:31.4110883
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserByEmail(..), Timestamp: 2025-07-02T11:11:31.4119815
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:11:31.4119815
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: CartService.addProductToCart(..), Timestamp: 2025-07-02T11:11:31.4171031
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserById(..), Timestamp: 2025-07-02T11:11:31.4203135
+2025-07-02 11:11:31 [http-nio-8080-exec-8] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: ProductRepository.getProductById(..), Timestamp: 2025-07-02T11:11:31.442501
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:11:52.067801
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:11:52.067801
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: WishlistApi.addProductToWishlist(..), Timestamp: 2025-07-02T11:11:52.0789057
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserByEmail(..), Timestamp: 2025-07-02T11:11:52.0798977
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:11:52.0798977
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: WishlistService.addProductToWishlist(..), Timestamp: 2025-07-02T11:11:52.0843089
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserById(..), Timestamp: 2025-07-02T11:11:52.0853104
+2025-07-02 11:11:52 [http-nio-8080-exec-7] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: ProductRepository.getProductById(..), Timestamp: 2025-07-02T11:11:52.0863149
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:11:54.2484722
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:11:54.249471
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: WishlistApi.addProductToWishlist(..), Timestamp: 2025-07-02T11:11:54.2614725
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserByEmail(..), Timestamp: 2025-07-02T11:11:54.2625373
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:11:54.2625373
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: WishlistService.addProductToWishlist(..), Timestamp: 2025-07-02T11:11:54.2665378
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserById(..), Timestamp: 2025-07-02T11:11:54.267438
+2025-07-02 11:11:54 [http-nio-8080-exec-9] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: ProductRepository.getProductById(..), Timestamp: 2025-07-02T11:11:54.2684425
+2025-07-02 11:12:48 [http-nio-8080-exec-10] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: AuthApi.createAuthenticationToken(..), Timestamp: 2025-07-02T11:12:48.3305789
+2025-07-02 11:12:48 [http-nio-8080-exec-10] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:12:48.3305789
+2025-07-02 11:12:48 [http-nio-8080-exec-10] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:12:48.3314496
+2025-07-02 11:12:48 [http-nio-8080-exec-10] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:12:48.6016632
+2025-07-02 11:12:48 [http-nio-8080-exec-10] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:12:48.6016632
+2025-07-02 11:13:05 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:13:05.9709877
+2025-07-02 11:13:05 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:13:05.9709877
+2025-07-02 11:13:06 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: OrderApi.getMonthlySalesReport(..), Timestamp: 2025-07-02T11:13:06.1012342
+2025-07-02 11:13:06 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: OrderService.generateMonthlySalesReport(..), Timestamp: 2025-07-02T11:13:06.1022378
+2025-07-02 11:13:21 [http-nio-8080-exec-1] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:13:21.1797737
+2025-07-02 11:13:21 [http-nio-8080-exec-1] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:13:21.1797737
+2025-07-02 11:13:21 [http-nio-8080-exec-1] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: OrderApi.getMonthlySalesReport(..), Timestamp: 2025-07-02T11:13:21.193036
+2025-07-02 11:13:21 [http-nio-8080-exec-1] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: OrderService.generateMonthlySalesReport(..), Timestamp: 2025-07-02T11:13:21.193036
+2025-07-02 11:13:27 [http-nio-8080-exec-3] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:13:27.9200052
+2025-07-02 11:13:27 [http-nio-8080-exec-3] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:13:27.92091
+2025-07-02 11:13:27 [http-nio-8080-exec-3] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: OrderApi.getMonthlySalesReport(..), Timestamp: 2025-07-02T11:13:27.9323232
+2025-07-02 11:13:27 [http-nio-8080-exec-3] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: OrderService.generateMonthlySalesReport(..), Timestamp: 2025-07-02T11:13:27.9333452
+2025-07-02 11:23:19 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-02 11:23:19 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-07-02 11:23:19 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-02 11:23:19 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-07-02 11:23:19 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-07-02 11:23:27 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-07-02 11:23:27 [main] INFO  c.e.S.SuperShopEnhancedApplication - Starting SuperShopEnhancedApplication using Java 23.0.2 with PID 25736 (C:\Users\Shahriar Zaman\Desktop\IntelliJ IDEA Codes\Main_Project\assignment_2\SuperShop_Enhanced\target\classes started by Shahriar Zaman in C:\Users\Shahriar Zaman\Desktop\IntelliJ IDEA Codes\Main_Project\assignment_2\SuperShop_Enhanced)
+2025-07-02 11:23:27 [main] INFO  c.e.S.SuperShopEnhancedApplication - No active profile set, falling back to 1 default profile: "default"
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.CartRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.InvoiceRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.LogRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.OrderRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.UserRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.SuperShop_Enhanced.repository.WishlistRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 81 ms. Found 0 JDBC repository interfaces.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-02 11:23:28 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 52 ms. Found 6 JPA repository interfaces.
+2025-07-02 11:23:29 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-02 11:23:29 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-07-02 11:23:29 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-02 11:23:29 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-07-02 11:23:30 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-02 11:23:30 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2795 ms
+2025-07-02 11:23:30 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-02 11:23:30 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-07-02 11:23:30 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-02 11:23:30 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-02 11:23:31 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-07-02 11:23:31 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@11309dd4
+2025-07-02 11:23:31 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-07-02 11:23:31 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-07-02 11:23:33 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-02 11:23:33 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-02 11:23:34 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-07-02 11:23:34 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-07-02 11:23:37 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-07-02 11:23:37 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-07-02 11:23:37 [main] INFO  c.e.S.SuperShopEnhancedApplication - Started SuperShopEnhancedApplication in 10.706 seconds (process running for 11.739)
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:24:23.2147621
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:24:23.216482
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: LogApi.getLogFile(), Timestamp: 2025-07-02T11:24:23.4624729
+2025-07-02 11:24:23 [http-nio-8080-exec-2] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman2001@gmail.com, Accessed Method: LogService.readLogFile(), Timestamp: 2025-07-02T11:24:23.4624729
+2025-07-02 11:41:33 [http-nio-8080-exec-5] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: AuthApi.createAuthenticationToken(..), Timestamp: 2025-07-02T11:41:33.5730518
+2025-07-02 11:41:33 [http-nio-8080-exec-5] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:41:33.7911462
+2025-07-02 11:41:33 [http-nio-8080-exec-5] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:41:33.7921437
+2025-07-02 11:41:34 [http-nio-8080-exec-5] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:41:34.01008
+2025-07-02 11:41:34 [http-nio-8080-exec-5] INFO  c.e.S.aspect.LoggingAspect - User: anonymousUser, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:41:34.0110753
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: CustomUserDetailsService.loadUserByUsername(..), Timestamp: 2025-07-02T11:41:54.4838363
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: Anonymous, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:41:54.4848327
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: CartApi.addProductToCart(..), Timestamp: 2025-07-02T11:41:54.5068764
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserByEmail(..), Timestamp: 2025-07-02T11:41:54.5078362
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserRepository.findByEmail(..), Timestamp: 2025-07-02T11:41:54.5088376
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: CartService.addProductToCart(..), Timestamp: 2025-07-02T11:41:54.5147209
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: UserService.getUserById(..), Timestamp: 2025-07-02T11:41:54.5185669
+2025-07-02 11:41:54 [http-nio-8080-exec-6] INFO  c.e.S.aspect.LoggingAspect - User: shahriarzaman146@gmail.com, Accessed Method: ProductRepository.getProductById(..), Timestamp: 2025-07-02T11:41:54.5918007
+2025-07-02 11:43:47 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-02 11:43:47 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-07-02 11:43:47 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-02 11:43:47 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-07-02 11:43:47 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

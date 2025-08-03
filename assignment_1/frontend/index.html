@@ -350,7 +350,7 @@
         }
 
         async function fetchAllProducts() {
-            const res = await fetch(`${apiBase}/all`);
+            const res = await fetch(`${apiBase}`);
             const products = await res.json();
             document.getElementById('all-products-container').innerHTML = createTableFromProducts(products);
         }

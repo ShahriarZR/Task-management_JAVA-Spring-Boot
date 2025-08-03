@@ -10,6 +10,16 @@ import java.util.List;
 @Repository
 public class ProductRepository {
 
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS products (" +
+            "id SERIAL PRIMARY KEY, " +
+            "name VARCHAR(255), " +
+            "price DOUBLE PRECISION, " +
+            "quantity INTEGER, " +
+            "category VARCHAR(50), " +
+            "expire_date DATE, " +
+            "availability BOOLEAN, " +
+            "discounted_price DOUBLE PRECISION)";
+
     private static final String INSERT_ONE = "INSERT INTO products (name, price, quantity, category, expire_date, availability, discounted_price) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_PRODUCT = "UPDATE products SET name=?, price=?, quantity=?, category=?, expire_date=?, availability=?, discounted_price=? WHERE id=?";
     private static final String GET_EXPIRING_IN_7_DAYS = "SELECT id, name, price, quantity, category, expire_date, availability, discounted_price FROM products WHERE expire_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'";
@@ -27,6 +37,7 @@ public class ProductRepository {
 
     public ProductRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.execute(CREATE_TABLE);
     }
 
     public void addProduct(Product product) {
